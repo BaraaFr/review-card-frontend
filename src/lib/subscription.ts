@@ -1,5 +1,4 @@
 import {
-    differenceInCalendarDays,
     format,
     isPast,
     parseISO,
@@ -36,23 +35,37 @@ import {
   export function getSubscriptionDaysRemaining(
     subscription: Subscription
   ) {
-    if (
-      !subscription.expiresAt
-    ) {
+    if (!subscription.expiresAt) {
       return null;
     }
   
-    return Math.max(
-      0,
-      differenceInCalendarDays(
-        parseISO(
-          subscription.expiresAt
-        ),
-        new Date()
-      )
+    const expiresAt =
+      parseISO(
+        subscription.expiresAt
+      ).getTime();
+  
+    const now =
+      Date.now();
+  
+    const remainingMs =
+      expiresAt -
+      now;
+  
+    if (remainingMs <= 0) {
+      return 0;
+    }
+  
+    const DAY_MS =
+      24 *
+      60 *
+      60 *
+      1000;
+  
+    return Math.ceil(
+      remainingMs /
+        DAY_MS
     );
   }
-  
   export function formatSubscriptionDate(
     date:
       | string

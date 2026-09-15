@@ -14,6 +14,8 @@ import {
     ChangePasswordPayload,
     UpdateProfilePayload,
   } from "@/services/account.service";
+import { User } from "@/types/auth";
+import { authKeys } from "../auth/use-me";
   /*
    * =========================================================
    * Query key
@@ -70,9 +72,42 @@ import {
         (
           response
         ) => {
+          /*
+           * Update the profile page cache.
+           */
           queryClient.setQueryData(
             profileQueryKey,
             response
+          );
+  
+          /*
+           * Update the authenticated user cache.
+           *
+           * UserMenu uses useMe(), so updating this
+           * cache makes the sidebar update instantly
+           * without refreshing the browser.
+           */
+          queryClient.setQueryData<
+            User | undefined
+          >(
+            authKeys.me(),
+  
+            (
+              currentUser
+            ) => {
+              if (
+                !currentUser
+              ) {
+                return currentUser;
+              }
+  
+              return {
+                ...currentUser,
+  
+                name:
+                  response.user.name,
+              };
+            }
           );
         },
     });

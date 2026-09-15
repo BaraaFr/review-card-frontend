@@ -1,6 +1,7 @@
 import {
     AuthGuard,
   } from "@/components/auth/auth-guard";
+import { TawkChat } from "@/components/chatbot/tawk-chatbot";
   
   import {
     DashboardShell,
@@ -20,6 +21,7 @@ import {
         <DashboardShell>
           {children}
         </DashboardShell>
+        <TawkChat />
       </AuthGuard>
     );
   }

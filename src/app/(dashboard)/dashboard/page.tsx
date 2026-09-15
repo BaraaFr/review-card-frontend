@@ -40,6 +40,7 @@ import { getEffectiveSubscriptionStatus } from "@/lib/subscription";
 import { Building2, Headphones } from "lucide-react";
 import { GoogleReputationSection } from "@/components/google/google-reputation-section";
 import { useStores } from "@/hooks/stores/use-store";
+import { RefreshButton } from "@/components/common/refresh-button";
 
 export default function DashboardPage() {
   const { data: user } = useMe();
@@ -106,8 +107,8 @@ export default function DashboardPage() {
           </h2>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            Your review cards remain active even while analytics access is
-            locked.
+          Your subscription is inactive. Review cards and
+          analytics are currently unavailable.
           </p>
         </div>
 
@@ -146,8 +147,11 @@ export default function DashboardPage() {
             your strongest engagement is happening.
           </p>
         </div>
-
+        <div className="flex items-center gap-2">
         <RangeSelector value={range} onChange={setRange} />
+        <RefreshButton />
+
+        </div>
       </div>
 
       {isLoading ? (
