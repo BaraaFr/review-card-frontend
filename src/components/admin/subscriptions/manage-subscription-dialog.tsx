@@ -348,8 +348,7 @@ export function ManageSubscriptionDialog({
           status === "CANCELED" ||
           status === "PAST_DUE" ? (
             <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-4 text-xs leading-5 text-muted-foreground">
-              Existing NFC and QR cards will continue redirecting and
-              interactions will continue being recorded, but analytics and
+              Existing NFC and QR cards will stop redirecting, analytics and
               subscription-locked features will be unavailable.
             </div>
           ) : null}

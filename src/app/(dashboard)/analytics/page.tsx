@@ -44,6 +44,8 @@ import { useSubscriptionUsage } from "@/hooks/subscriptions/use-subscription";
 import { getEffectiveSubscriptionStatus } from "@/lib/subscription";
 import { AnalyticsLockedState } from "@/components/analytics/analytics-locked-state";
 import { useMe } from "@/hooks/auth/use-me";
+import { DataReportPreview } from "@/components/analytics/data-report-preview";
+import { RefreshButton } from "@/components/common/refresh-button";
 
 /*
  * =========================================================
@@ -274,8 +276,8 @@ export default function AnalyticsPage() {
           </h2>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            Your review cards remain active even while analytics access is
-            locked.
+            Your subscription is inactive. Review cards and analytics are
+            currently unavailable.
           </p>
         </div>
 
@@ -424,55 +426,64 @@ export default function AnalyticsPage() {
           <div className="relative space-y-5">
             {/* Header title */}
 
-            <div>
-              <div className="flex items-center gap-2">
-                <div
-                  className="
-                    h-5 w-1
-                    rounded-full
-                    bg-emerald-500
-                  "
-                />
+            {/* =============================================
+    Header title
+============================================= */}
 
-                <p
-                  className="
-                    text-xs
-                    font-semibold
-                    uppercase
-                    tracking-[0.16em]
-                    text-emerald-600
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="
+          h-5
+          w-1
+          rounded-full
+          bg-emerald-500
+        "
+                  />
 
-                    dark:text-emerald-400
-                  "
-                >
-                  ValYou Analytics
-                </p>
+                  <p
+                    className="
+          text-xs
+          font-semibold
+          uppercase
+          tracking-[0.16em]
+          text-emerald-600
+          dark:text-emerald-400
+        "
+                  >
+                    ValYou Analytics
+                  </p>
+                </div>
+
+                <div className="mt-2">
+                  <h1
+                    className="
+          text-2xl
+          font-semibold
+          tracking-tight
+          sm:text-3xl
+        "
+                  >
+                    Customer engagement
+                  </h1>
+
+                  <p
+                    className="
+          mt-1
+          max-w-2xl
+          text-sm
+          text-muted-foreground
+        "
+                  >
+                    Understand how customers interact with your locations,
+                    cards, and Google reputation.
+                  </p>
+                </div>
               </div>
 
-              <div className="mt-2">
-                <h1
-                  className="
-                    text-2xl
-                    font-semibold
-                    tracking-tight
-
-                    sm:text-3xl
-                  "
-                >
-                  Customer engagement
-                </h1>
-
-                <p
-                  className="
-                    mt-1
-                    max-w-2xl
-                    text-sm
-                    text-muted-foreground
-                  "
-                >
-                  Understand how customers interact with your locations, cards,
-                  and Google reputation.
-                </p>
+              <div className="shrink-0">
+                <RefreshButton />
               </div>
             </div>
 
@@ -834,7 +845,7 @@ export default function AnalyticsPage() {
             />
 
             {/* =============================================
-                7. Weekly Report Preview
+                7. Data Report Preview
             =============================================
 
                 Keep this WEEKLY.
@@ -842,9 +853,9 @@ export default function AnalyticsPage() {
                 The dashboard custom date range must NOT
                 alter the automatic weekly report preview.
             ============================================= */}
-
-            <WeeklyReportPreview
+            <DataReportPreview
               storeId={effectiveStoreId}
+              range={analyticsRange}
               downloading={downloading}
               onDownload={handleDownload}
             />

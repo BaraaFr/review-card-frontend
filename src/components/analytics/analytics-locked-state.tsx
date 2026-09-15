@@ -10,28 +10,21 @@ import {
   Users,
 } from "lucide-react";
 
-import {
-  buttonVariants,
-} from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 type Props = {
-  reason?:
-    | "EXPIRED"
-    | "CANCELED"
-    | "PAST_DUE"
-    | "NO_SUBSCRIPTION";
+  reason?: "EXPIRED" | "CANCELED" | "PAST_DUE" | "NO_SUBSCRIPTION";
 };
 
-export function AnalyticsLockedState({
-  reason = "EXPIRED",
-}: Props) {
+export function AnalyticsLockedState({ reason = "EXPIRED" }: Props) {
   const title =
     reason === "PAST_DUE"
-      ? "Your analytics are temporarily locked"
-      : reason ===
-          "CANCELED"
-        ? "Your analytics are locked"
-        : "Your analytics subscription has expired";
+      ? "Your subscription needs attention"
+      : reason === "CANCELED"
+      ? "Your subscription is canceled"
+      : reason === "NO_SUBSCRIPTION"
+      ? "A subscription is required"
+      : "Your subscription has expired";
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-card p-6 shadow-sm md:p-10">
@@ -56,56 +49,33 @@ export function AnalyticsLockedState({
           </h2>
 
           <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">
-            Your physical review
-            cards are still active
-            and customer activity
-            continues to be
-            recorded. Renew your
-            subscription to unlock
-            your analytics and the
-            activity collected while
-            access was unavailable.
+            Your NFC and QR review cards and analytics are currently
+            unavailable. Renew your subscription to restore service. Your
+            existing physical cards will automatically work again after renewal.
           </p>
 
           <div className="mt-7 grid gap-3 sm:grid-cols-2">
-            <LockedFeature>
-              Interaction analytics
-            </LockedFeature>
+            <LockedFeature>Interaction analytics</LockedFeature>
 
-            <LockedFeature>
-              NFC & QR performance
-            </LockedFeature>
+            <LockedFeature>NFC & QR performance</LockedFeature>
 
-            <LockedFeature>
-              Card performance
-            </LockedFeature>
+            <LockedFeature>Card performance</LockedFeature>
 
-            <LockedFeature>
-              Location analytics
-            </LockedFeature>
+            <LockedFeature>Location analytics</LockedFeature>
 
-            <LockedFeature>
-              Review insights
-            </LockedFeature>
+            <LockedFeature>Review insights</LockedFeature>
 
-            <LockedFeature>
-              Customer insights
-            </LockedFeature>
+            <LockedFeature>Customer insights</LockedFeature>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/subscription"
               className={buttonVariants({
-                className:
-                  "h-11 px-5",
+                className: "h-11 px-5",
               })}
             >
-              <Sparkles
-                data-icon="inline-start"
-                className="size-4"
-              />
-
+              <Sparkles data-icon="inline-start" className="size-4" />
               Renew subscription
             </Link>
           </div>
@@ -116,9 +86,7 @@ export function AnalyticsLockedState({
           <div className="rounded-3xl border border-border/70 bg-background/70 p-5 shadow-xl backdrop-blur">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold">
-                  Performance
-                </p>
+                <p className="text-sm font-semibold">Performance</p>
 
                 <p className="mt-1 text-xs text-muted-foreground">
                   Customer activity
@@ -129,33 +97,13 @@ export function AnalyticsLockedState({
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <FakeMetric
-                icon={
-                  BarChart3
-                }
-                label="Interactions"
-              />
+              <FakeMetric icon={BarChart3} label="Interactions" />
 
-              <FakeMetric
-                icon={
-                  Users
-                }
-                label="Visitors"
-              />
+              <FakeMetric icon={Users} label="Visitors" />
 
-              <FakeMetric
-                icon={
-                  Radio
-                }
-                label="NFC taps"
-              />
+              <FakeMetric icon={Radio} label="NFC taps" />
 
-              <FakeMetric
-                icon={
-                  Star
-                }
-                label="Reviews"
-              />
+              <FakeMetric icon={Star} label="Reviews" />
             </div>
 
             <div className="relative mt-4 h-40 overflow-hidden rounded-2xl border border-border/60 bg-muted/30">
@@ -185,12 +133,7 @@ export function AnalyticsLockedState({
   );
 }
 
-function LockedFeature({
-  children,
-}: {
-  children:
-    React.ReactNode;
-}) {
+function LockedFeature({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2.5 text-sm">
       <div className="flex size-6 items-center justify-center rounded-full bg-emerald-500/10">
@@ -220,9 +163,7 @@ function FakeMetric({
         <div className="h-5 w-4 rounded bg-muted-foreground/20" />
       </div>
 
-      <p className="mt-2 text-[11px] text-muted-foreground">
-        {label}
-      </p>
+      <p className="mt-2 text-[11px] text-muted-foreground">{label}</p>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { ArrowRight, Loader2, LockKeyhole, Mail } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, LockKeyhole, Mail } from "lucide-react";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 
@@ -23,19 +23,22 @@ import { useLogin } from "@/hooks/auth/use-login";
 import { getApiErrorMessage } from "@/lib/api-error";
 
 import { toast } from "sonner";
+import { useState } from "react";
 
 export default function LoginPage() {
   const loginMutation = useLogin();
-
+  const [showPassword, setShowPassword] = useState(false)
   const {
     register,
     handleSubmit,
+
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
 
     defaultValues: {
       email: "",
+
       password: "",
     },
   });
@@ -54,6 +57,8 @@ export default function LoginPage() {
       description="Sign in to manage your review cards, locations and customer engagement."
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Email */}
+
         <div className="space-y-2">
           <Label htmlFor="email" className="text-zinc-300">
             Email address
@@ -68,15 +73,15 @@ export default function LoginPage() {
               placeholder="you@business.com"
               autoComplete="email"
               className="
-              h-12
-              border-border/70
-              bg-background/60
-              pl-10
-              text-foreground
-              placeholder:text-muted-foreground
-              focus-visible:border-emerald-500/50
-              focus-visible:ring-emerald-500/20
-            "
+                h-12
+                border-border/70
+                bg-background/60
+                pl-10
+                text-foreground
+                placeholder:text-muted-foreground
+                focus-visible:border-emerald-500/50
+                focus-visible:ring-emerald-500/20
+              "
               {...register("email")}
             />
           </div>
@@ -86,31 +91,46 @@ export default function LoginPage() {
           )}
         </div>
 
+        {/* Password */}
+
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-zinc-300">
-            Password
-          </Label>
+          <div className="flex items-center justify-between gap-4">
+            <Label htmlFor="password" className="text-zinc-300">
+              Password
+            </Label>
+
+            <Link
+              href="/forgot-password"
+              className="text-xs font-medium text-emerald-400 transition-colors hover:text-emerald-300"
+            >
+              Forgot password?
+            </Link>
+          </div>
 
           <div className="relative">
-            <LockKeyhole className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
+            <LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
             <Input
               id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              className="
-  h-12
-  border-border/70
-  bg-background/60
-  pl-10
-  text-foreground
-  placeholder:text-muted-foreground
-  focus-visible:border-emerald-500/50
-  focus-visible:ring-emerald-500/20
-"
+              type={showPassword ? "text" : "password"}
+              placeholder="Minimum 8 characters"
+              autoComplete="new-password"
+              className="h-11 px-9"
               {...register("password")}
             />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((current) => !current)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </button>
           </div>
 
           {errors.password && (
@@ -141,9 +161,9 @@ export default function LoginPage() {
             ValYou accounts are invitation-only.
           </p>
 
-          <p className="mt-1 text-xs text-muted-foreground">
-            Contact ValYou if your business needs access.
-          </p>
+          <a href="/#request-account" className="mt-1 text-xs text-muted-foreground font-semibold hover:underline">
+            Request an account.
+          </a>
         </div>
       </form>
     </AuthShell>

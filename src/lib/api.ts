@@ -220,17 +220,22 @@ api.interceptors.response.use(
         error
       );
     }
-
     const isRefreshableAuthError =
-      response.status ===
-        401 &&
-      [
-        "ACCESS_TOKEN_EXPIRED",
-        "AUTHENTICATION_REQUIRED",
-        "INVALID_ACCESS_TOKEN",
-      ].includes(
-        code
-      );
+    response.status ===
+      401 &&
+    [
+      "ACCESS_TOKEN_EXPIRED",
+      "AUTHENTICATION_REQUIRED",
+      "INVALID_ACCESS_TOKEN",
+  
+      /*
+       * Password changes and password recovery
+       * revoke the corresponding DB session.
+       */
+      "SESSION_REVOKED",
+    ].includes(
+      code
+    );
 
     const url =
       originalRequest.url ??

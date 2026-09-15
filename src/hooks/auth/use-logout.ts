@@ -25,6 +25,28 @@ export function useLogout() {
     onSuccess: async () => {
       queryClient.clear();
       localStorage.clear()
+
+      window.Tawk_API?.logout?.(
+        (
+          error
+        ) => {
+          if (error) {
+            console.error(
+              "Unable to logout Tawk visitor",
+              error
+            );
+
+            return;
+          }
+
+          window.__VALYOU_TAWK_USER_ID =
+            undefined;
+
+          window.__VALYOU_TAWK_LOGIN_PENDING_USER_ID =
+            undefined;
+        }
+      );
+
       router.replace(
         "/"
       );
