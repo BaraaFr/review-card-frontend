@@ -20,6 +20,7 @@ import {
 import {
   analyticsKeys,
 } from "@/hooks/analytics/use-analytics";
+import { CardPaymentMethod } from "@/types/card";
 
 export const cardKeys = {
   all: [
@@ -178,5 +179,35 @@ export function useUnassignCard() {
         }),
       ]);
     },
+  });
+}
+
+export function useDeliverCard() {
+  const queryClient =
+    useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      cardId,
+      paymentMethod,
+    }: {
+      cardId: string;
+
+      paymentMethod:
+        CardPaymentMethod;
+    }) =>
+      cardsService.deliver(
+        cardId,
+        paymentMethod
+      ),
+
+    onSuccess:
+      async () => {
+        await queryClient
+          .invalidateQueries({
+            queryKey:
+              cardKeys.all,
+          });
+      },
   });
 }

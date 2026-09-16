@@ -27,8 +27,8 @@ export interface Subscription {
   startsAt: string;
 
   expiresAt:
-    | string
-    | null;
+  | string
+  | null;
 
   createdAt: string;
 
@@ -51,10 +51,21 @@ export interface SubscriptionRemaining {
 
 export interface SubscriptionUsageResult {
   subscription:
-    | Subscription
-    | null;
+  | Subscription
+  | null;
+  
+  trial:
+  TrialInfo;
 
   usage: SubscriptionUsage;
 
   remaining: SubscriptionRemaining;
+}
+
+export interface TrialInfo {
+  eligible: boolean;
+
+  startedAt:
+  | string
+  | null;
 }
