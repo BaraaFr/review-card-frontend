@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AddLocationDialog } from "./add-location-dialog";
 import { DeleteStoreDialog } from "@/components/locations/delete-store-dialog";
 import { StoreFormDialog } from "@/components/locations/store-form-dialog";
+import { LocationGoogleConnection } from "@/components/google/location-google-connection";
 
 type Props = {
   businessId: string;
@@ -96,12 +97,24 @@ export function ManageLocationsDialog({
           ) : (
             <div className="space-y-3">
               {stores.map((store) => (
-                <LocationRow
+                <div
                   key={store.id}
-                  store={store}
-                  onDelete={() => setDeleteStore(store)}
-                  onEdit={() => setEditStore(store)}
-                />
+                  className="space-y-3 rounded-2xl border border-border/70 p-3"
+                >
+                  <LocationRow
+                    store={store}
+                    onEdit={() => setEditStore(store)}
+                    onDelete={() => setDeleteStore(store)}
+                  />
+
+                  <LocationGoogleConnection store={store} />
+
+                  {store.googlePlaceId && (
+                    <p className="break-all px-1 text-xs text-muted-foreground">
+                      Connected Google Place ID: {store.googlePlaceId}
+                    </p>
+                  )}
+                </div>
               ))}
             </div>
           )}
