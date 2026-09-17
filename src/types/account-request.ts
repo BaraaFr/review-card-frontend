@@ -8,7 +8,7 @@ export type AccountRequestStatus =
 
 export type PublicAccountRequestInput = {
   ownerName: string;
-
+  email:string;
   phone: string;
 
   shopName: string;
@@ -30,7 +30,7 @@ export type AccountRequest = {
   id: string;
 
   ownerName: string;
-
+  email:string;
   phone: string;
 
   shopName: string;

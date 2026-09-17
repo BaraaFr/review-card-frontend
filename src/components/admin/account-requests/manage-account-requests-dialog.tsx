@@ -7,22 +7,17 @@ import {
 
 import {
   Mail,
+  Building2,
   Phone,
   Save,
   Loader2,
 } from "lucide-react";
 
-import {
-  toast,
-} from "sonner";
+import { toast } from "sonner";
 
-import {
-  Badge,
-} from "@/components/ui/badge";
-
-import {
-  Button,
-} from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 import {
   Dialog,
@@ -34,10 +29,6 @@ import {
 } from "@/components/ui/dialog";
 
 import {
-  Textarea,
-} from "@/components/ui/textarea";
-
-import {
   useUpdateAccountRequest,
 } from "@/hooks/account-requests/use-update-account-request";
 
@@ -46,26 +37,18 @@ import type {
   AccountRequestStatus,
 } from "@/types/account-request";
 
-const statuses:
-  AccountRequestStatus[] =
-  [
-    "NEW",
-    "CONTACTED",
-    "QUALIFIED",
-    "CONVERTED",
-    "CLOSED",
-  ];
+const statuses: AccountRequestStatus[] = [
+  "NEW",
+  "CONTACTED",
+  "QUALIFIED",
+  "CONVERTED",
+  "CLOSED",
+];
 
 type Props = {
-  request:
-    | AccountRequest
-    | null;
-
+  request: AccountRequest | null;
   open: boolean;
-
-  onOpenChange: (
-    open: boolean
-  ) => void;
+  onOpenChange: (open: boolean) => void;
 };
 
 export function ManageAccountRequestDialog({
@@ -73,39 +56,21 @@ export function ManageAccountRequestDialog({
   open,
   onOpenChange,
 }: Props) {
-  const mutation =
-    useUpdateAccountRequest();
+  const mutation = useUpdateAccountRequest();
 
-  const [
-    status,
-    setStatus,
-  ] =
-    useState<AccountRequestStatus>(
-      "NEW"
-    );
+  const [status, setStatus] =
+    useState<AccountRequestStatus>("NEW");
 
-  const [
-    adminNote,
-    setAdminNote,
-  ] =
-    useState("");
+  const [adminNote, setAdminNote] = useState("");
 
   useEffect(() => {
     if (!request) {
       return;
     }
 
-    setStatus(
-      request.status
-    );
-
-    setAdminNote(
-      request.adminNote ??
-        ""
-    );
-  }, [
-    request,
-  ]);
+    setStatus(request.status);
+    setAdminNote(request.adminNote ?? "");
+  }, [request]);
 
   if (!request) {
     return null;
@@ -114,29 +79,16 @@ export function ManageAccountRequestDialog({
   async function handleSave() {
     try {
       await mutation.mutateAsync({
-        requestId:
-          request!.id,
-
+        requestId: request!.id,
         status,
-
-        adminNote:
-          adminNote.trim() ||
-          null,
+        adminNote: adminNote.trim() || null,
       });
 
-      toast.success(
-        "Request updated."
-      );
-
-      onOpenChange(
-        false
-      );
-    } catch (
-      error: any
-    ) {
+      toast.success("Request updated.");
+      onOpenChange(false);
+    } catch (error: any) {
       toast.error(
-        error?.response
-          ?.data?.message ??
+        error?.response?.data?.message ??
           "Unable to update request."
       );
     }
@@ -145,31 +97,21 @@ export function ManageAccountRequestDialog({
   return (
     <Dialog
       open={open}
-      onOpenChange={(
-        nextOpen
-      ) => {
-        if (
-          mutation.isPending
-        ) {
+      onOpenChange={(nextOpen) => {
+        if (mutation.isPending) {
           return;
         }
 
-        onOpenChange(
-          nextOpen
-        );
+        onOpenChange(nextOpen);
       }}
     >
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>
-            Manage request
-          </DialogTitle>
+          <DialogTitle>Manage request</DialogTitle>
 
           <DialogDescription>
-            Review the business
-            request, contact the
-            owner and update its
-            onboarding status.
+            Review the business request, contact the owner and
+            update its onboarding status.
           </DialogDescription>
         </DialogHeader>
 
@@ -178,23 +120,16 @@ export function ManageAccountRequestDialog({
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="font-semibold">
-                  {
-                    request.shopName
-                  }
+                  {request.shopName}
                 </h3>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {
-                    request.ownerName
-                  }
+                  {request.ownerName}
                 </p>
               </div>
 
               <Badge variant="secondary">
-                {
-                  request.requestedCards
-                }{" "}
-                cards requested
+                {request.requestedCards} cards requested
               </Badge>
             </div>
 
@@ -204,19 +139,31 @@ export function ManageAccountRequestDialog({
                 className="flex items-center gap-3 rounded-xl border bg-background p-3 text-sm transition-colors hover:bg-muted"
               >
                 <Phone className="size-4 text-emerald-600" />
-
-                {
-                  request.phone
-                }
+                {request.phone}
               </a>
 
-              <div className="flex items-center gap-3 rounded-xl border bg-background p-3 text-sm">
-                <Mail className="size-4 text-muted-foreground" />
+              {request.email ? (
+                <a
+                  href={`mailto:${request.email}`}
+                  className="flex min-w-0 items-center gap-3 rounded-xl border bg-background p-3 text-sm hover:bg-muted"
+                >
+                  <Mail className="size-4 shrink-0 text-emerald-600" />
 
-                {
-                  request.businessType ??
-                  "Business type not provided"
-                }
+                  <span className="break-all">
+                    {request.email}
+                  </span>
+                </a>
+              ) : (
+                <p className="rounded-xl border bg-background p-3 text-sm text-muted-foreground">
+                  Email not provided
+                </p>
+              )}
+
+              <div className="flex items-center gap-3 rounded-xl border bg-background p-3 text-sm">
+                <Building2 className="size-4 text-muted-foreground" />
+
+                {request.businessType ??
+                  "Business type not provided"}
               </div>
             </div>
 
@@ -227,9 +174,7 @@ export function ManageAccountRequestDialog({
                 </p>
 
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
-                  {
-                    request.message
-                  }
+                  {request.message}
                 </p>
               </div>
             )}
@@ -241,39 +186,19 @@ export function ManageAccountRequestDialog({
             </label>
 
             <select
-              value={
-                status
-              }
-              onChange={(
-                event
-              ) =>
+              value={status}
+              onChange={(event) =>
                 setStatus(
-                  event
-                    .target
-                    .value as
-                    AccountRequestStatus
+                  event.target.value as AccountRequestStatus
                 )
               }
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
             >
-              {statuses.map(
-                (
-                  value
-                ) => (
-                  <option
-                    key={
-                      value
-                    }
-                    value={
-                      value
-                    }
-                  >
-                    {formatStatus(
-                      value
-                    )}
-                  </option>
-                )
-              )}
+              {statuses.map((value) => (
+                <option key={value} value={value}>
+                  {formatStatus(value)}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -283,21 +208,11 @@ export function ManageAccountRequestDialog({
             </label>
 
             <Textarea
-              value={
-                adminNote
+              value={adminNote}
+              onChange={(event) =>
+                setAdminNote(event.target.value)
               }
-              onChange={(
-                event
-              ) =>
-                setAdminNote(
-                  event
-                    .target
-                    .value
-                )
-              }
-              rows={
-                5
-              }
+              rows={5}
               placeholder="Call outcome, pricing discussion, onboarding details..."
             />
           </div>
@@ -307,26 +222,16 @@ export function ManageAccountRequestDialog({
           <Button
             type="button"
             variant="outline"
-            disabled={
-              mutation.isPending
-            }
-            onClick={() =>
-              onOpenChange(
-                false
-              )
-            }
+            disabled={mutation.isPending}
+            onClick={() => onOpenChange(false)}
           >
             Cancel
           </Button>
 
           <Button
             type="button"
-            disabled={
-              mutation.isPending
-            }
-            onClick={
-              handleSave
-            }
+            disabled={mutation.isPending}
+            onClick={handleSave}
           >
             {mutation.isPending ? (
               <Loader2 className="size-4 animate-spin" />
@@ -342,21 +247,12 @@ export function ManageAccountRequestDialog({
   );
 }
 
-function formatStatus(
-  status:
-    AccountRequestStatus
-) {
+function formatStatus(status: AccountRequestStatus) {
   return status
     .toLowerCase()
-    .replace(
-      "_",
-      " "
-    )
+    .replace("_", " ")
     .replace(
       /^\w/,
-      (
-        character
-      ) =>
-        character.toUpperCase()
+      (character) => character.toUpperCase()
     );
 }

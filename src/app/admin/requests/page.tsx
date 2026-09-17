@@ -278,7 +278,7 @@ export default function AdminRequestsPage() {
                     .value
                 )
               }
-              placeholder="Search owner, business or phone..."
+              placeholder="Search owner, email,  business or phone..."
               className="pl-9"
             />
           </div>
@@ -383,6 +383,10 @@ export default function AdminRequestsPage() {
                       </th>
 
                       <th className="px-5 py-4">
+                        Email
+                      </th>
+
+                      <th className="px-5 py-4">
                         Status
                       </th>
 
@@ -442,6 +446,13 @@ export default function AdminRequestsPage() {
                           <td className="px-5 py-4">
                             {
                               request.requestedCards
+                            }
+                          </td>
+
+
+                          <td className="px-5 py-4">
+                            {
+                              request.email ?? "N/A"
                             }
                           </td>
 
