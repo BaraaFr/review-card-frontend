@@ -17,6 +17,11 @@ export interface CardBusiness {
   ownerId?: string;
 }
 
+export type CardPaymentMethod =
+  | "CASH"
+  | "WHISH"
+  | "OTHER";
+
 export interface CardStore {
   id: string;
   name: string;
@@ -48,6 +53,23 @@ export interface ReviewCard {
   assignedAt:
     | string
     | null;
+
+
+  salePriceCents:
+  | number
+  | null;
+
+paidAt:
+  | string
+  | null;
+
+deliveredAt:
+  | string
+  | null;
+
+paymentMethod:
+  | CardPaymentMethod
+  | null;
 
   createdAt: string;
   updatedAt: string;

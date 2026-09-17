@@ -14,6 +14,7 @@ import {
   type CreateSubscriptionPayload,
   type UpdateSubscriptionPayload,
 } from "@/services/subscriptions.service";
+import { SubscriptionPlan } from "@/types/subscription";
 
 export const subscriptionKeys = {
   all: [
@@ -286,5 +287,115 @@ export function useUpdateSubscription() {
         ],
       });
     },
+  });
+}
+
+export function useStartTrial() {
+  const queryClient =
+    useQueryClient();
+
+  return useMutation({
+    mutationFn: (
+      businessId: string
+    ) =>
+      subscriptionsService
+        .startTrial(
+          businessId
+        ),
+
+    onSuccess:
+      async (
+        _subscription,
+        businessId
+      ) => {
+        await Promise.all([
+          queryClient
+            .invalidateQueries({
+              queryKey:
+                subscriptionKeys
+                  .usage(
+                    businessId
+                  ),
+            }),
+
+          queryClient
+            .invalidateQueries({
+              queryKey: [
+                "admin",
+                "subscriptions",
+              ],
+            }),
+
+          queryClient
+            .invalidateQueries({
+              queryKey: [
+                "admin",
+                "customers",
+              ],
+            }),
+        ]);
+      },
+  });
+}
+
+export function useActivatePaidSubscription() {
+  const queryClient =
+    useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      businessId,
+      plan,
+      months,
+    }: {
+      businessId: string;
+
+      plan:
+        SubscriptionPlan;
+
+      months: number;
+    }) =>
+      subscriptionsService
+        .activatePaid(
+          businessId,
+          {
+            plan,
+            months,
+          }
+        ),
+
+    onSuccess:
+      async (
+        _subscription,
+        variables
+      ) => {
+        await Promise.all([
+          queryClient
+            .invalidateQueries({
+              queryKey:
+                subscriptionKeys
+                  .usage(
+                    variables
+                      .businessId
+                  ),
+            }),
+
+          queryClient
+            .invalidateQueries({
+              queryKey: [
+                "admin",
+                "subscriptions",
+              ],
+            }),
+
+          queryClient
+            .invalidateQueries({
+              queryKey: [
+                "admin",
+                "customers",
+              ],
+            }),
+        ]);
+      },
   });
 }
