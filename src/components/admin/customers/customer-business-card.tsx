@@ -106,9 +106,10 @@ export function CustomerBusinessCard({
           </div>
         ) : (
           <div className="mt-6 rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-            Activate a subscription to enable locations, cards and analytics for
-            this business.
-          </div>
+          You can prepare this business’s location and cards before starting a
+          subscription, within Starter limits. Customer analytics require a
+          usable trial or active subscription.
+        </div>
         )}
       </div>
 
