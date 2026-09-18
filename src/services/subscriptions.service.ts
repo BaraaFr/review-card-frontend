@@ -2,115 +2,117 @@ import {
   api,
 } from "@/lib/api";
 
+import {
+  idempotentRequest,
+} from "@/lib/idempotent-request";
+
 import type {
+  Subscription,
+  SubscriptionPlan,
   SubscriptionUsageResult,
 } from "@/types/subscription";
 
-type UsageResponse = {
-  success: boolean;
-
-  data: SubscriptionUsageResult;
+type SubscriptionResult = {
+  data: {
+    subscription:
+      Omit<
+        Subscription,
+        "usable" |
+          "limits"
+      >;
+  };
 };
 
-import type {
-  SubscriptionPlan,
-  SubscriptionStatus,
-} from "@/types/subscription";
+export type PaidSubscriptionPayload = {
+  plan:
+    SubscriptionPlan;
 
-export type CreateSubscriptionPayload = {
-  plan: SubscriptionPlan;
+  months:
+    number;
 
-  status: SubscriptionStatus;
+  amountCents:
+    number;
 
-  startsAt?: string;
+  paymentMethod:
+    | "CASH"
+    | "WHISH"
+    | "OTHER";
 
-  expiresAt?:
-  | string
-  | null;
+  receiptReference:
+    string;
 };
-
-export type UpdateSubscriptionPayload = {
-  plan?: SubscriptionPlan;
-
-  status?: SubscriptionStatus;
-
-  startsAt?: string;
-
-  expiresAt?:
-  | string
-  | null;
-};
-
-
 
 export const subscriptionsService = {
+  /*
+   * READ
+   */
   async getUsage(
-    businessId: string
+    businessId:
+      string
   ) {
     const response =
-      await api.get<UsageResponse>(
+      await api.get<{
+        data:
+          SubscriptionUsageResult;
+      }>(
         `/subscriptions/businesses/${businessId}/usage`
       );
 
-    return response.data.data;
+    return response
+      .data
+      .data;
   },
 
-  async create(
-    businessId: string,
-    payload: CreateSubscriptionPayload
-  ) {
-    const response =
-      await api.post(
-        `/subscriptions/businesses/${businessId}`,
-        payload
-      );
-
-    return response.data.data
-      .subscription;
-  },
-
-  async update(
-    subscriptionId: string,
-    payload: UpdateSubscriptionPayload
-  ) {
-    const response =
-      await api.patch(
-        `/subscriptions/${subscriptionId}`,
-        payload
-      );
-
-    return response.data.data
-      .subscription;
-  },
-
+  /*
+   * COMMERCIAL MUTATION
+   *
+   * One trial per business.
+   */
   async startTrial(
-    businessId: string
+    businessId:
+      string
   ) {
     const response =
-      await api.post(
+      await idempotentRequest<SubscriptionResult>(
+        "POST",
+
         `/subscriptions/businesses/${businessId}/start-trial`
       );
 
-    return response.data
-      .data.subscription;
+    return response
+      .data
+      .data
+      .subscription;
   },
 
+  /*
+   * COMMERCIAL MUTATION
+   *
+   * Records both:
+   *
+   * Subscription state
+   * +
+   * PaymentRecord
+   */
   async activatePaid(
-    businessId: string,
-    payload: {
-      plan:
-      SubscriptionPlan;
+    businessId:
+      string,
 
-      months: number;
-    }
+    payload:
+      PaidSubscriptionPayload
   ) {
     const response =
-      await api.post(
+      await idempotentRequest<SubscriptionResult>(
+        "POST",
+
         `/subscriptions/businesses/${businessId}/activate-paid`,
+
         payload
       );
 
-    return response.data
-      .data.subscription;
+    return response
+      .data
+      .data
+      .subscription;
   },
 };
