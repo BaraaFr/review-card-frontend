@@ -1,25 +1,29 @@
-export type AnalyticsRange =
-  | "today"
-  | "7d"
-  | "30d"
-  | "custom";
-
 export type InteractionSource =
   | "NFC"
   | "QR"
   | "UNKNOWN";
-
-export interface AnalyticsFilters {
-  businessId?: string;
-
-  storeId?: string;
-
-  cardId?: string;
-
-  from?: string;
-
-  to?: string;
-}
+  export interface AnalyticsFilters {
+    range?:
+      AnalyticsRange;
+  
+    businessId?:
+      string;
+  
+    storeId?:
+      string;
+  
+    cardId?:
+      string;
+  
+    from?:
+      string;
+  
+    to?:
+      string;
+  
+    timeZone?:
+      string;
+  }
 
 export interface AnalyticsPeriod {
   from: string;
@@ -115,4 +119,33 @@ export interface StoreAnalytics {
   qr: number;
 
   unknown: number;
+}
+
+export type AnalyticsRange =
+  | "today"
+  | "7d"
+  | "30d"
+  | "custom";
+
+export interface AnalyticsFilters {
+  range?:
+    AnalyticsRange;
+
+  timeZone?:
+    string;
+
+  businessId?:
+    string;
+
+  storeId?:
+    string;
+
+  cardId?:
+    string;
+
+  from?:
+    string;
+
+  to?:
+    string;
 }

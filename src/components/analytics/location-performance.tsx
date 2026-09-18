@@ -602,42 +602,48 @@ export function LocationPerformance({ storeId, range }: Props) {
                 </TableHeader>
 
                 <TableBody>
-                  {locations?.map((location) => {
-                    const change = getChangePresentation(
-                      location.changePercentage
-                    );
+                  {locations
+                    ?.sort(
+                      (a, b) =>
+                        b.currentInteractions - a.currentInteractions ||
+                        a.id.localeCompare(b.id)
+                    )
+                    ?.map((location) => {
+                      const change = getChangePresentation(
+                        location.changePercentage
+                      );
 
-                    const ChangeIcon = change.icon;
+                      const ChangeIcon = change.icon;
 
-                    const status = getLocationStatus(location.status);
+                      const status = getLocationStatus(location.status);
 
-                    const isBest = location.id === bestLocationId;
+                      const isBest = location.id === bestLocationId;
 
-                    return (
-                      <TableRow
-                        key={location.id}
-                        className={
-                          location.isSelected
-                            ? "bg-emerald-50/50 dark:bg-emerald-950/10"
-                            : undefined
-                        }
-                      >
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {isBest && (
-                              <Trophy className="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                            )}
+                      return (
+                        <TableRow
+                          key={location.id}
+                          className={
+                            location.isSelected
+                              ? "bg-emerald-50/50 dark:bg-emerald-950/10"
+                              : undefined
+                          }
+                        >
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {isBest && (
+                                <Trophy className="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                              )}
 
-                            <div>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className="font-medium">
-                                  {getLocationName(location)}
-                                </p>
+                              <div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="font-medium">
+                                    {getLocationName(location)}
+                                  </p>
 
-                                {location.isSelected && (
-                                  <Badge
-                                    variant="outline"
-                                    className="
+                                  {location.isSelected && (
+                                    <Badge
+                                      variant="outline"
+                                      className="
                                         border-emerald-200
                                         bg-emerald-50
                                         text-[10px]
@@ -647,30 +653,30 @@ export function LocationPerformance({ storeId, range }: Props) {
                                         dark:bg-emerald-950/30
                                         dark:text-emerald-400
                                       "
-                                  >
-                                    Selected
-                                  </Badge>
-                                )}
+                                    >
+                                      Selected
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </TableCell>
+                          </TableCell>
 
-                        <TableCell className="text-right font-medium">
-                          {location.currentInteractions}
-                        </TableCell>
+                          <TableCell className="text-right font-medium">
+                            {location.currentInteractions}
+                          </TableCell>
 
-                        <TableCell className="text-right">
-                          {location.uniqueVisitors}
-                        </TableCell>
+                          <TableCell className="text-right">
+                            {location.uniqueVisitors}
+                          </TableCell>
 
-                        <TableCell className="text-right">
-                          {location.activityShare}%
-                        </TableCell>
+                          <TableCell className="text-right">
+                            {location.activityShare}%
+                          </TableCell>
 
-                        <TableCell className="text-right">
-                          <div
-                            className={`
+                          <TableCell className="text-right">
+                            <div
+                              className={`
                                 inline-flex
                                 items-center
                                 justify-end
@@ -679,30 +685,30 @@ export function LocationPerformance({ storeId, range }: Props) {
                                 font-medium
                                 ${change.className}
                               `}
-                          >
-                            <ChangeIcon className="size-3.5" />
-
-                            {change.label}
-                          </div>
-                        </TableCell>
-
-                        <TableCell className="text-sm text-muted-foreground">
-                          {formatLastActivity(location.lastInteractionAt)}
-                        </TableCell>
-
-                        <TableCell className="text-right">
-                          <div className="flex justify-end">
-                            <Badge
-                              variant="outline"
-                              className={status.className}
                             >
-                              {status.label}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                              <ChangeIcon className="size-3.5" />
+
+                              {change.label}
+                            </div>
+                          </TableCell>
+
+                          <TableCell className="text-sm text-muted-foreground">
+                            {formatLastActivity(location.lastInteractionAt)}
+                          </TableCell>
+
+                          <TableCell className="text-right">
+                            <div className="flex justify-end">
+                              <Badge
+                                variant="outline"
+                                className={status.className}
+                              >
+                                {status.label}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                 </TableBody>
               </Table>
             </div>

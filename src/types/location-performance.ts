@@ -7,100 +7,103 @@ export type LocationPerformanceStatus =
 
 export type LocationPerformanceItem = {
   id:
-    string;
+  string;
 
   name:
-    string | null;
+  string | null;
 
   isSelected:
-    boolean;
+  boolean;
 
   currentInteractions:
-    number;
+  number;
 
   previousInteractions:
-    number;
+  number;
 
   changePercentage:
-    number | null;
+  number | null;
 
   uniqueVisitors:
-    number;
+  number;
 
   activityShare:
-    number;
+  number;
 
   lastInteractionAt:
-    string | null;
+  string | null;
 
   status:
-    LocationPerformanceStatus;
+  LocationPerformanceStatus;
 };
 
 export type BestLocation = {
   id:
-    string;
+  string;
 
   name:
-    string | null;
+  string | null;
 
   interactions:
-    number;
+  number;
 
   uniqueVisitors:
-    number;
+  number;
 
   changePercentage:
-    number | null;
+  number | null;
 };
 
 export type LocationPerformanceData = {
   period: {
     days:
-      number;
+    number;
 
     from:
-      string;
+    string;
 
     to:
-      string;
+    string;
 
     previousFrom:
-      string;
+    string;
 
     previousTo:
-      string;
+    string;
+
+    timeZone:
+    string;
   };
 
   summary: {
     totalLocations:
-      number;
+    number;
 
     locationsWithActivity:
-      number;
+    number;
 
     locationsNeedingAttention:
-      number;
+    number;
 
     totalInteractions:
-      number;
+    number;
 
     totalUniqueVisitors:
-      number;
+    number;
 
     bestLocation:
-      BestLocation |
-      null;
+    BestLocation |
+    null;
   };
 
   locations:
-    LocationPerformanceItem[];
+  LocationPerformanceItem[];
 };
 
 export type LocationPerformanceResponse = {
   success:
-    boolean;
+  boolean;
 
   data:
-    LocationPerformanceData;
+  LocationPerformanceData;
 };

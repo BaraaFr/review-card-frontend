@@ -1,20 +1,3 @@
-export type EngagementAnalyticsPeriod = {
-    days:
-      number;
-  
-    from:
-      string;
-  
-    to:
-      string;
-  
-    previousFrom:
-      string;
-  
-    previousTo:
-      string;
-  };
-  
   export type EngagementInteractionMetrics = {
     current:
       number;
@@ -112,4 +95,24 @@ export type EngagementAnalyticsPeriod = {
   
     data:
       EngagementAnalytics;
+  };
+
+  export type EngagementAnalyticsPeriod = {
+    days:
+      number;
+  
+    from:
+      string;
+  
+    to:
+      string;
+  
+    previousFrom:
+      string;
+  
+    previousTo:
+      string;
+  
+    timeZone:
+      string;
   };
