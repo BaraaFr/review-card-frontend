@@ -11,6 +11,10 @@ import type {
   CustomerDetail,
 } from "@/types/customer";
 
+import {
+  idempotentRequest,
+} from "@/lib/idempotent-request";
+
 type CustomersResponse = {
   success: boolean;
 
@@ -145,16 +149,23 @@ export const customersService = {
   },
   
   async createAdditionalBusiness(
-    userId: string,
+    userId:
+      string,
+  
     payload:
       CreateAdditionalBusinessPayload
   ) {
     const response =
-      await api.post<AdditionalBusinessResponse>(
+      await idempotentRequest<AdditionalBusinessResponse>(
+        "POST",
+  
         `/admin/customers/${userId}/businesses`,
+  
         payload
       );
   
-    return response.data.data;
+    return response
+      .data
+      .data;
   },
 };

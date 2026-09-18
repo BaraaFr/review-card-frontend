@@ -1,16 +1,10 @@
 "use client";
 
-import {
-  useEffect,
-} from "react";
+import { useEffect } from "react";
 
-import {
-  useForm,
-} from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-import {
-  zodResolver,
-} from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   Building2,
@@ -21,38 +15,24 @@ import {
   UserRound,
 } from "lucide-react";
 
-import {
-  toast,
-} from "sonner";
+import { toast } from "sonner";
 
 import {
   createCustomerFormSchema,
   type CreateCustomerFormValues,
 } from "@/lib/validations/customer";
 
-import {
-  getApiErrorMessage,
-} from "@/lib/api-error";
+import { getApiErrorMessage } from "@/lib/api-error";
 
-import {
-  useCreateCustomer,
-} from "@/hooks/admin/customers/use-customers";
+import { useCreateCustomer } from "@/hooks/admin/customers/use-customers";
 
-import type {
-  CustomerCreationResult,
-} from "@/types/customer";
+import type { CustomerCreationResult } from "@/types/customer";
 
-import {
-  Button,
-} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
-import {
-  Input,
-} from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 
-import {
-  Label,
-} from "@/components/ui/label";
+import { Label } from "@/components/ui/label";
 
 import {
   NativeSelect,
@@ -71,66 +51,42 @@ import {
 type Props = {
   open: boolean;
 
-  onOpenChange: (
-    open: boolean
-  ) => void;
+  onOpenChange: (open: boolean) => void;
 
-  onCreated: (
-    result:
-      CustomerCreationResult
-  ) => void;
+  onCreated: (result: CustomerCreationResult) => void;
 };
 
-export function CreateCustomerDialog({
-  open,
-  onOpenChange,
-  onCreated,
-}: Props) {
-  const createCustomer =
-    useCreateCustomer();
+export function CreateCustomerDialog({ open, onOpenChange, onCreated }: Props) {
+  const createCustomer = useCreateCustomer();
 
   const {
     register,
     handleSubmit,
     reset,
     watch,
-    formState: {
-      errors,
+    formState: { errors },
+  } = useForm<CreateCustomerFormValues>({
+    resolver: zodResolver(createCustomerFormSchema),
+
+    defaultValues: {
+      name: "",
+      email: "",
+
+      businessName: "",
+
+      logoUrl: "",
+
+      subscriptionMode: "NONE",
+
+      plan: "STARTER",
+
+      trialDays: 14,
+
+      expiresAt: "",
     },
-  } =
-    useForm<CreateCustomerFormValues>({
-      resolver:
-        zodResolver(
-          createCustomerFormSchema
-        ),
+  });
 
-      defaultValues: {
-        name: "",
-        email: "",
-
-        businessName:
-          "",
-
-        logoUrl: "",
-
-        subscriptionMode:
-          "TRIAL",
-
-        plan:
-          "STARTER",
-
-        trialDays:
-          14,
-
-        expiresAt:
-          "",
-      },
-    });
-
-  const mode =
-    watch(
-      "subscriptionMode"
-    );
+  const mode = watch("subscriptionMode");
 
   useEffect(() => {
     if (!open) {
@@ -141,134 +97,82 @@ export function CreateCustomerDialog({
       name: "",
       email: "",
 
-      businessName:
-        "",
+      businessName: "",
 
       logoUrl: "",
 
-      subscriptionMode:
-        "TRIAL",
+      subscriptionMode: "TRIAL",
 
-      plan:
-        "STARTER",
+      plan: "STARTER",
 
-      trialDays:
-        14,
+      trialDays: 14,
 
-      expiresAt:
-        "",
+      expiresAt: "",
     });
-  }, [
-    open,
-    reset,
-  ]);
+  }, [open, reset]);
 
-  const submit = async (
-    values:
-      CreateCustomerFormValues
-  ) => {
+  const submit = async (values: CreateCustomerFormValues) => {
     try {
       const subscription =
-        values.subscriptionMode ===
-        "NONE"
+        values.subscriptionMode === "NONE"
           ? {
-              mode:
-                "NONE" as const,
+              mode: "NONE" as const,
             }
-          : values.subscriptionMode ===
-              "TRIAL"
-            ? {
-                mode:
-                  "TRIAL" as const,
+          : values.subscriptionMode === "TRIAL"
+          ? {
+              mode: "TRIAL" as const,
 
-                plan:
-                  values.plan,
+              plan: values.plan,
 
-                days:
-                  values.trialDays,
-              }
-            : {
-                mode:
-                  "ACTIVE" as const,
+              days: values.trialDays,
+            }
+          : {
+              mode: "ACTIVE" as const,
 
-                plan:
-                  values.plan,
+              plan: values.plan,
 
-                expiresAt:
-                  values.expiresAt
-                    ? new Date(
-                        `${values.expiresAt}T23:59:59`
-                      ).toISOString()
-                    : null,
-              };
+              expiresAt: values.expiresAt
+                ? new Date(`${values.expiresAt}T23:59:59`).toISOString()
+                : null,
+            };
 
-      const result =
-        await createCustomer
-          .mutateAsync({
-            name:
-              values.name,
+      const result = await createCustomer.mutateAsync({
+        name: values.name,
 
-            email:
-              values.email,
+        email: values.email,
 
-            business: {
-              name:
-                values.businessName,
+        business: {
+          name: values.businessName,
 
-              logoUrl:
-                values.logoUrl ||
-                null,
-            },
+          logoUrl: values.logoUrl || null,
+        },
 
-            subscription,
-          });
+        subscription,
+      });
 
-      toast.success(
-        "Customer created"
-      );
+      toast.success("Customer created");
 
       onOpenChange(false);
 
       onCreated(result);
     } catch (error) {
-      toast.error(
-        getApiErrorMessage(
-          error,
-          "Unable to create customer"
-        )
-      );
+      toast.error(getApiErrorMessage(error, "Unable to create customer"));
     }
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={
-        onOpenChange
-      }
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>
-            Add customer
-          </DialogTitle>
+          <DialogTitle>Add customer</DialogTitle>
 
           <DialogDescription>
-            Create the customer&apos;s
-            account, first business
-            workspace and initial
-            subscription.
+            Create the customer&apos;s account and first business workspace.
+            Subscription access is activated separately.
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          onSubmit={
-            handleSubmit(
-              submit
-            )
-          }
-          className="space-y-7"
-        >
+        <form onSubmit={handleSubmit(submit)} className="space-y-7">
           {/* Customer */}
           <section className="space-y-4">
             <SectionTitle
@@ -280,21 +184,14 @@ export function CreateCustomerDialog({
               <InputField
                 id="customer-name"
                 label="Full name"
-                icon={
-                  UserRound
-                }
-                error={
-                  errors.name
-                    ?.message
-                }
+                icon={UserRound}
+                error={errors.name?.message}
               >
                 <Input
                   id="customer-name"
                   className="pl-9"
                   placeholder="Ahmad Khalil"
-                  {...register(
-                    "name"
-                  )}
+                  {...register("name")}
                 />
               </InputField>
 
@@ -302,18 +199,13 @@ export function CreateCustomerDialog({
                 id="customer-email"
                 label="Email"
                 icon={Mail}
-                error={
-                  errors.email
-                    ?.message
-                }
+                error={errors.email?.message}
               >
                 <Input
                   id="customer-email"
                   className="pl-9"
                   placeholder="ahmad@burgero.com"
-                  {...register(
-                    "email"
-                  )}
+                  {...register("email")}
                 />
               </InputField>
             </div>
@@ -332,22 +224,14 @@ export function CreateCustomerDialog({
               <InputField
                 id="business-name"
                 label="Business name"
-                icon={
-                  Building2
-                }
-                error={
-                  errors
-                    .businessName
-                    ?.message
-                }
+                icon={Building2}
+                error={errors.businessName?.message}
               >
                 <Input
                   id="business-name"
                   className="pl-9"
                   placeholder="Burgero"
-                  {...register(
-                    "businessName"
-                  )}
+                  {...register("businessName")}
                 />
               </InputField>
 
@@ -355,18 +239,13 @@ export function CreateCustomerDialog({
                 id="business-logo"
                 label="Logo URL"
                 icon={Image}
-                error={
-                  errors.logoUrl
-                    ?.message
-                }
+                error={errors.logoUrl?.message}
               >
                 <Input
                   id="business-logo"
                   className="pl-9"
                   placeholder="Optional"
-                  {...register(
-                    "logoUrl"
-                  )}
+                  {...register("logoUrl")}
                 />
               </InputField>
             </div>
@@ -383,48 +262,25 @@ export function CreateCustomerDialog({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>
-                  Access mode
-                </Label>
+                <Label>Access mode</Label>
 
-                <NativeSelect
-                  {...register(
-                    "subscriptionMode"
-                  )}
-                >
-                  <NativeSelectOption value="TRIAL">
-                    Free trial
-                  </NativeSelectOption>
-
-                  <NativeSelectOption value="ACTIVE">
-                    Active subscription
-                  </NativeSelectOption>
-
+                <NativeSelect {...register("subscriptionMode")}>
                   <NativeSelectOption value="NONE">
                     No subscription
                   </NativeSelectOption>
                 </NativeSelect>
               </div>
 
-              {mode !==
-                "NONE" && (
+              {mode !== "NONE" && (
                 <div className="space-y-2">
-                  <Label>
-                    Plan
-                  </Label>
+                  <Label>Plan</Label>
 
-                  <NativeSelect
-                    {...register(
-                      "plan"
-                    )}
-                  >
+                  <NativeSelect {...register("plan")}>
                     <NativeSelectOption value="STARTER">
                       Starter
                     </NativeSelectOption>
 
-                    <NativeSelectOption value="PRO">
-                      Pro
-                    </NativeSelectOption>
+                    <NativeSelectOption value="PRO">Pro</NativeSelectOption>
 
                     <NativeSelectOption value="BUSINESS">
                       Business
@@ -434,12 +290,9 @@ export function CreateCustomerDialog({
               )}
             </div>
 
-            {mode ===
-              "TRIAL" && (
+            {mode === "TRIAL" && (
               <div className="space-y-2">
-                <Label htmlFor="trial-days">
-                  Trial duration
-                </Label>
+                <Label htmlFor="trial-days">Trial duration</Label>
 
                 <div className="relative max-w-xs">
                   <CalendarDays className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -450,59 +303,39 @@ export function CreateCustomerDialog({
                     min={1}
                     max={90}
                     className="pl-9"
-                    {...register(
-                      "trialDays"
-                    )}
+                    {...register("trialDays")}
                   />
                 </div>
 
-                {errors
-                  .trialDays && (
+                {errors.trialDays && (
                   <p className="text-xs text-destructive">
-                    {
-                      errors
-                        .trialDays
-                        .message
-                    }
+                    {errors.trialDays.message}
                   </p>
                 )}
               </div>
             )}
 
-            {mode ===
-              "ACTIVE" && (
+            {mode === "ACTIVE" && (
               <div className="space-y-2">
-                <Label htmlFor="subscription-expiry">
-                  Expiry date
-                </Label>
+                <Label htmlFor="subscription-expiry">Expiry date</Label>
 
                 <Input
                   id="subscription-expiry"
                   type="date"
                   className="max-w-xs"
-                  {...register(
-                    "expiresAt"
-                  )}
+                  {...register("expiresAt")}
                 />
 
                 <p className="text-xs text-muted-foreground">
-                  Leave empty if
-                  you don&apos;t want to
-                  set an expiry yet.
+                  Leave empty if you don&apos;t want to set an expiry yet.
                 </p>
               </div>
             )}
 
-            {mode ===
-              "NONE" && (
+            {mode === "NONE" && (
               <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-4 text-xs leading-5 text-muted-foreground">
-                The customer can
-                activate their
-                account, but
-                subscription-locked
-                functionality such
-                as analytics will
-                remain unavailable.
+                The customer can activate their account, but subscription-locked
+                functionality such as analytics will remain unavailable.
               </div>
             )}
           </section>
@@ -511,27 +344,15 @@ export function CreateCustomerDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() =>
-                onOpenChange(
-                  false
-                )
-              }
+              onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>
 
-            <Button
-              type="submit"
-              disabled={
-                createCustomer
-                  .isPending
-              }
-            >
-              {createCustomer
-                .isPending && (
+            <Button type="submit" disabled={createCustomer.isPending}>
+              {createCustomer.isPending && (
                 <Loader2 className="size-4 animate-spin" />
               )}
-
               Create customer
             </Button>
           </DialogFooter>
@@ -550,13 +371,9 @@ function SectionTitle({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold">
-        {title}
-      </h3>
+      <h3 className="text-sm font-semibold">{title}</h3>
 
-      <p className="mt-1 text-xs text-muted-foreground">
-        {description}
-      </p>
+      <p className="mt-1 text-xs text-muted-foreground">{description}</p>
     </div>
   );
 }
@@ -572,19 +389,15 @@ function InputField({
 
   label: string;
 
-  icon:
-    React.ElementType;
+  icon: React.ElementType;
 
   error?: string;
 
-  children:
-    React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={id}>
-        {label}
-      </Label>
+      <Label htmlFor={id}>{label}</Label>
 
       <div className="relative">
         <Icon className="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -592,11 +405,7 @@ function InputField({
         {children}
       </div>
 
-      {error && (
-        <p className="text-xs text-destructive">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

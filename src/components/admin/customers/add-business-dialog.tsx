@@ -311,10 +311,11 @@ export function AddBusinessDialog({
 
           <section className="space-y-4">
             <div>
-              <h3 className="text-sm font-semibold">Initial subscription</h3>
+              <h3 className="text-sm font-semibold"> Subscription access</h3>
 
               <p className="mt-1 text-xs text-muted-foreground">
-                This is independent from the customer&apos;s other businesses.
+                Subscription access is activated separately after the workspace
+                is created.
               </p>
             </div>
 
@@ -325,14 +326,6 @@ export function AddBusinessDialog({
                 <NativeSelect {...register("subscriptionMode")}>
                   <NativeSelectOption value="NONE">
                     No subscription
-                  </NativeSelectOption>
-
-                  <NativeSelectOption value="TRIAL">
-                    Free trial
-                  </NativeSelectOption>
-
-                  <NativeSelectOption value="ACTIVE">
-                    Active subscription
                   </NativeSelectOption>
                 </NativeSelect>
               </div>
@@ -390,9 +383,9 @@ export function AddBusinessDialog({
 
             {mode === "NONE" && (
               <div className="rounded-xl border border-border/70 bg-muted/40 p-4 text-xs leading-5 text-muted-foreground">
-                The workspace will exist, but analytics, new locations and new
-                card assignments will remain locked until you activate a
-                subscription.
+                The workspace will be created without a subscription. SuperAdmin
+                can finish provisioning the physical card and then start the
+                trial or record a paid subscription separately.
               </div>
             )}
           </section>
