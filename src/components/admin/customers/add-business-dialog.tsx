@@ -314,7 +314,7 @@ export function AddBusinessDialog({
               <h3 className="text-sm font-semibold">Initial subscription</h3>
 
               <p className="mt-1 text-xs text-muted-foreground">
-                This is independent from the customer's other businesses.
+                This is independent from the customer&apos;s other businesses.
               </p>
             </div>
 

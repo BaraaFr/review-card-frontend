@@ -22,13 +22,12 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useWeeklyReport } from "@/hooks/analytics/use-weekly-report";
 import { Button } from "../ui/button";
-import { downloadAnalyticsReport } from "@/services/analytics-report.service";
 
 type WeeklyReportPreviewProps = {
   storeId: string;

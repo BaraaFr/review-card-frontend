@@ -75,7 +75,7 @@ export function LocationGoogleConnection({
             </div>
 
             <p className="mt-2 text-sm text-muted-foreground">
-              Add this location's
+              Add this location&apos;s
               Google Review URL before
               connecting Google
               Reputation.
@@ -225,9 +225,9 @@ export function LocationGoogleConnection({
           <p className="mt-2 max-w-xs text-sm text-muted-foreground">
             ValYou will identify
             the Google Business from
-            this location's review
+            this location&apos;s review
             URL, name and address.
-            You'll confirm the
+            You&apos;ll confirm the
             business when necessary.
           </p>
         </div>

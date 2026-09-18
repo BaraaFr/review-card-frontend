@@ -12,7 +12,6 @@ import {
   RefreshCw,
   ShieldAlert,
   UsersRound,
-  WalletCards,
 } from "lucide-react";
 
 import {

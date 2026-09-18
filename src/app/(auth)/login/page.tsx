@@ -161,9 +161,9 @@ export default function LoginPage() {
             ValYou accounts are invitation-only.
           </p>
 
-          <a href="/#request-account" className="mt-1 text-xs text-muted-foreground font-semibold hover:underline">
+          <Link href="/#request-account" className="mt-1 text-xs text-muted-foreground font-semibold hover:underline">
             Request an account.
-          </a>
+          </Link>
         </div>
       </form>
     </AuthShell>

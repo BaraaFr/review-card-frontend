@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
 
 import {
   Building2,
   Check,
   ChevronsUpDown,
-  Plus,
 } from "lucide-react";
 
 import {
@@ -20,7 +18,6 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 

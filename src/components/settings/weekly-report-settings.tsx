@@ -10,7 +10,6 @@ import {
   Clock3,
   Loader2,
   Mail,
-  Send,
 } from "lucide-react";
 
 import {
@@ -49,7 +48,6 @@ import {
 } from "@/components/ui/switch";
 
 import {
-  useSendTestWeeklyReport,
   useUpdateWeeklyReportSettings,
   useWeeklyReportSettings,
 } from "@/hooks/settings/use-weekly-report-settings";

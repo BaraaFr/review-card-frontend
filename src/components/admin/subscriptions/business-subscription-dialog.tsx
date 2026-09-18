@@ -87,10 +87,6 @@ export function BusinessSubscriptionDialog({
       businessName={
         businessName
       }
-      subscription={
-        data?.subscription ??
-        null
-      }
       open={open}
       onOpenChange={
         onOpenChange

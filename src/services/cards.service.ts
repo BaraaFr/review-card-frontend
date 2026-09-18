@@ -9,6 +9,10 @@ import type {
   ReviewCard,
 } from "@/types/card";
 
+import {
+  idempotentRequest,
+} from "@/lib/idempotent-request";
+
 export type CardFilters = {
   page?: number;
   limit?: number;
@@ -135,19 +139,30 @@ export const cardsService = {
 
   async deliver(
     cardId: string,
+
     paymentMethod:
-      CardPaymentMethod
+      CardPaymentMethod,
+
+    receiptReference:
+      string
   ) {
     const response =
-      await api.post(
+      await idempotentRequest<CardResponse>(
+        "POST",
+
         `/cards/${cardId}/deliver`,
+
         {
           paymentMethod,
+
+          receiptReference,
         }
       );
 
-    return response.data
-      .data.card;
+    return response
+      .data
+      .data
+      .card;
   },
 };
 

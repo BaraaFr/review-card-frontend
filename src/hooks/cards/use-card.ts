@@ -181,7 +181,6 @@ export function useUnassignCard() {
     },
   });
 }
-
 export function useDeliverCard() {
   const queryClient =
     useQueryClient();
@@ -190,24 +189,67 @@ export function useDeliverCard() {
     mutationFn: ({
       cardId,
       paymentMethod,
+      receiptReference,
     }: {
-      cardId: string;
+      cardId:
+        string;
 
       paymentMethod:
         CardPaymentMethod;
+
+      receiptReference:
+        string;
     }) =>
       cardsService.deliver(
         cardId,
-        paymentMethod
+        paymentMethod,
+        receiptReference
       ),
 
     onSuccess:
       async () => {
-        await queryClient
-          .invalidateQueries({
-            queryKey:
-              cardKeys.all,
-          });
+        await Promise.all([
+          queryClient
+            .invalidateQueries({
+              queryKey:
+                cardKeys.all,
+            }),
+
+          /*
+           * Delivery can change trial
+           * eligibility because a trial
+           * requires a paid + delivered
+           * card.
+           */
+          queryClient
+            .invalidateQueries({
+              queryKey: [
+                "subscriptions",
+              ],
+            }),
+
+          /*
+           * Admin screens can display
+           * card/payment state.
+           */
+          queryClient
+            .invalidateQueries({
+              queryKey: [
+                "admin",
+              ],
+            }),
+
+          /*
+           * Refresh payment-history
+           * queries.
+           */
+          queryClient
+            .invalidateQueries({
+              queryKey: [
+                "payments",
+              ],
+            }),
+        ]);
       },
   });
 }

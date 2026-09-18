@@ -12,7 +12,6 @@ import {
   CreditCard,
   LayoutDashboard,
   MapPin,
-  Radio,
   ScanLine,
   UsersRound,
   WalletCards,

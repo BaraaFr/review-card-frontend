@@ -2,9 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { CalendarDays, Download, Loader2, MapPin } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { CalendarDays, MapPin } from "lucide-react";
 
 import {
   Select,
@@ -23,8 +21,6 @@ import { EngagementPatterns } from "@/components/analytics/engagement-patterns";
 import { LocationPerformance } from "@/components/analytics/location-performance";
 
 import { CardPerformance } from "@/components/analytics/card-performance";
-
-import { WeeklyReportPreview } from "@/components/analytics/weekly-report-preview";
 
 import { downloadAnalyticsReport } from "@/services/analytics-report.service";
 
@@ -73,9 +69,9 @@ export default function AnalyticsPage() {
 
   const subscriptionQuery = useSubscriptionUsage(businessId);
 
-  const subscription = subscriptionQuery.data?.subscription;
+  const subscription = useMemo(() => subscriptionQuery.data?.subscription, [subscriptionQuery.data]);
 
-  const analyticsAllowed = Boolean(subscription?.usable);
+  const analyticsAllowed = useMemo(()=>Boolean(subscription?.usable),[subscription]);
   /*
    * =======================================================
    * Location filter

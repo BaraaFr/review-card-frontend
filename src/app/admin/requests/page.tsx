@@ -11,7 +11,6 @@ import {
   Inbox,
   Phone,
   Search,
-  Store,
   UserCheck,
 } from "lucide-react";
 

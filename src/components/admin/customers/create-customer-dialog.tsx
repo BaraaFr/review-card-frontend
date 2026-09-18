@@ -254,7 +254,7 @@ export function CreateCustomerDialog({
           </DialogTitle>
 
           <DialogDescription>
-            Create the customer's
+            Create the customer&apos;s
             account, first business
             workspace and initial
             subscription.
@@ -487,7 +487,7 @@ export function CreateCustomerDialog({
 
                 <p className="text-xs text-muted-foreground">
                   Leave empty if
-                  you don't want to
+                  you don&apos;t want to
                   set an expiry yet.
                 </p>
               </div>

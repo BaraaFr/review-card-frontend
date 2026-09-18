@@ -1,5 +1,6 @@
 import { Radio, Sparkles, Star, TrendingUp } from "lucide-react";
 import ValYouLogo from "../landing/valyou-logo";
+import Link from "next/link";
 
 type AuthShellProps = {
   children: React.ReactNode;
@@ -31,9 +32,9 @@ export function AuthShell({ children, title, description }: AuthShellProps) {
       <div className="relative mx-auto grid min-h-screen max-w-[1600px] lg:grid-cols-[1.05fr_.95fr]">
         {/* Marketing Side */}
         <section className="relative hidden flex-col justify-between p-12 lg:flex xl:p-16">
-          <a href="/" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <ValYouLogo />
-          </a>
+          </Link>
 
           <div className="max-w-xl">
             <h1 className="text-balance text-5xl font-semibold tracking-[-0.045em] text-foreground xl:text-6xl">
