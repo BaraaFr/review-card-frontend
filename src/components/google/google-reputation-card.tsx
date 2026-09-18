@@ -549,7 +549,9 @@ export function GoogleReputationCard({ store, hasAnalyticsAccess }: Props) {
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-sm font-medium">
                           {review.author.photoUrl ? (
-                            <Image
+                            <img
+                              width={200}
+                              height={200}
                               src={review.author.photoUrl}
                               alt=""
                               className="size-full object-cover"
