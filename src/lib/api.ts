@@ -3,115 +3,274 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 
-const baseURL ="http://localhost:4000/api";
+/*
+ * Never hardcode production API URLs
+ * into application source.
+ */
+const baseURL =
+  process.env
+    .NEXT_PUBLIC_API_URL ??
+  "http://localhost:4000/api";
+
+const options = {
+  baseURL,
+
+  timeout:
+    15_000,
+
+  withCredentials:
+    true,
+
+  headers: {
+    "Content-Type":
+      "application/json",
+  },
+};
 
 export const api =
-  axios.create({
-    baseURL,
-
-    withCredentials:
-      true,
-
-    headers: {
-      "Content-Type":
-        "application/json",
-    },
-  });
+  axios.create(
+    options
+  );
 
 /*
- * Separate client so refresh requests
- * don't recursively trigger the main
- * Axios interceptor.
+ * Refresh client must NOT use
+ * the main interceptor or it would
+ * recursively refresh itself.
  */
 const refreshClient =
+  axios.create(
+    options
+  );
+
+/*
+ * Public endpoints do not need
+ * authentication cookies.
+ *
+ * The browser still sends its Origin
+ * header, so trusted-origin protection
+ * remains effective.
+ */
+export const publicApi =
   axios.create({
-    baseURL,
+    ...options,
 
     withCredentials:
-      true,
-
-    headers: {
-      "Content-Type":
-        "application/json",
-    },
+      false,
   });
 
-type RetryRequestConfig =
+type AuthError = {
+  code?:
+    string;
+
+  message?:
+    string;
+};
+
+type RetriedRequest =
   InternalAxiosRequestConfig & {
-    _retry?: boolean;
+    _retry?:
+      boolean;
   };
 
 /*
- * One refresh promise per browser tab.
- *
- * If 10 API requests fail at once,
- * they all wait for the same refresh.
+ * One refresh promise for all failed
+ * requests inside this browser tab.
  */
 let refreshPromise:
-  | Promise<void>
-  | null =
+  Promise<void> |
+  null =
   null;
 
-function sleep(
-  milliseconds: number
-) {
-  return new Promise(
+/*
+ * =========================================================
+ * Terminal session errors
+ * =========================================================
+ *
+ * Network errors / 429 / 5xx are NOT terminal.
+ *
+ * We must not throw away a user's valid session
+ * just because Redis/API temporarily failed.
+ */
+export function isTerminalAuthError(
+  error:
+    unknown
+): boolean {
+  if (
+    !axios.isAxiosError<AuthError>(
+      error
+    )
+  ) {
+    return false;
+  }
+
+  const status =
+    error.response
+      ?.status;
+
+  const code =
+    error.response
+      ?.data
+      ?.code;
+
+  return (
     (
-      resolve
-    ) => {
-      window.setTimeout(
-        resolve,
-        milliseconds
-      );
-    }
+      status ===
+        401 &&
+      code !==
+        "REFRESH_TOKEN_STALE"
+    ) ||
+    (
+      status ===
+        403 &&
+      code ===
+        "ACCOUNT_DISABLED"
+    )
   );
 }
 
+/*
+ * =========================================================
+ * Login redirect
+ * =========================================================
+ */
+
+function redirectToLogin() {
+  if (
+    typeof window ===
+    "undefined"
+  ) {
+    return;
+  }
+
+  const pathname =
+    window.location
+      .pathname;
+
+  /*
+   * Avoid redirect loops.
+   */
+  if (
+    [
+      "/login",
+      "/activate-account",
+      "/reset-password",
+    ].includes(
+      pathname
+    )
+  ) {
+    return;
+  }
+
+  window.location.replace(
+    `/login?next=${encodeURIComponent(
+      pathname
+    )}`
+  );
+}
+
+/*
+ * =========================================================
+ * Refresh
+ * =========================================================
+ */
+
 async function performRefresh() {
   try {
-    await refreshClient.post(
-      "/auth/refresh"
-    );
-
-    return;
-  } catch (
-    firstError: any
-  ) {
-    /*
-     * Another browser tab may have
-     * rotated the shared refresh cookie
-     * while this request was in-flight.
-     *
-     * Browser cookies are shared across
-     * tabs, so retry once using the
-     * newest cookie.
-     */
-    if (
-      firstError?.response
-        ?.status === 401 &&
-      firstError?.response
-        ?.data?.code ===
-        "REFRESH_TOKEN_STALE"
-    ) {
-      await sleep(
-        200
-      );
-
-      await refreshClient.post(
+    await refreshClient
+      .post(
         "/auth/refresh"
       );
-
-      return;
+  } catch (
+    error
+  ) {
+    /*
+     * Another tab may have rotated the
+     * refresh cookie just before us.
+     *
+     * Browser cookies are shared between
+     * tabs, so retry once using whatever
+     * cookie is newest now.
+     */
+    if (
+      !axios.isAxiosError<AuthError>(
+        error
+      ) ||
+      error.response
+        ?.data
+        ?.code !==
+        "REFRESH_TOKEN_STALE"
+    ) {
+      throw error;
     }
 
-    throw firstError;
+    await new Promise(
+      (
+        resolve
+      ) =>
+        setTimeout(
+          resolve,
+          250
+        )
+    );
+
+    await refreshClient
+      .post(
+        "/auth/refresh"
+      );
   }
 }
 
-async function refreshSession() {
-  if (!refreshPromise) {
+/*
+ * =========================================================
+ * Cross-tab refresh lock
+ * =========================================================
+ */
+
+function refreshSession() {
+  if (
+    !refreshPromise
+  ) {
+    const run =
+      async () => {
+        /*
+         * navigator.locks coordinates
+         * refreshes between browser tabs.
+         *
+         * Without this:
+         *
+         * Tab A refreshes
+         * Tab B refreshes old cookie
+         * Tab B gets STALE
+         *
+         * The backend still handles that,
+         * but avoiding the race entirely
+         * is cleaner.
+         */
+        if (
+          typeof navigator !==
+            "undefined" &&
+          "locks" in
+            navigator
+        ) {
+          await navigator
+            .locks
+            .request(
+              "valyou-session-refresh",
+
+              performRefresh
+            );
+
+          return;
+        }
+
+        /*
+         * Browser fallback.
+         */
+        await performRefresh();
+      };
+
     refreshPromise =
-      performRefresh()
+      run()
         .finally(
           () => {
             refreshPromise =
@@ -123,184 +282,165 @@ async function refreshSession() {
   return refreshPromise;
 }
 
-function redirectToLogin(
-  reason?: string
-) {
-  if (
-    typeof window ===
-    "undefined"
-  ) {
-    return;
-  }
+/*
+ * =========================================================
+ * Main response interceptor
+ * =========================================================
+ */
 
-  const pathname =
-    window.location.pathname;
+api.interceptors
+  .response
+  .use(
+    (
+      response
+    ) =>
+      response,
 
-  if (
-    pathname ===
-      "/login" ||
-    pathname ===
-      "/activate-account"
-  ) {
-    return;
-  }
+    async (
+      error:
+        AxiosError<AuthError>
+    ) => {
+      const original =
+        error.config as
+          | RetriedRequest
+          | undefined;
 
-  const loginUrl =
-    reason
-      ? `/login?reason=${encodeURIComponent(
-          reason
-        )}`
-      : "/login";
-
-  window.location.replace(
-    loginUrl
-  );
-}
-
-async function terminateBrowserSession() {
-  try {
-    await refreshClient.post(
-      "/auth/logout"
-    );
-  } catch {
-    /*
-     * Logout is best-effort here.
-     */
-  }
-}
-
-api.interceptors.response.use(
-  (
-    response
-  ) =>
-    response,
-
-  async (
-    error:
-      AxiosError<any>
-  ) => {
-    const response =
-      error.response;
-
-    const originalRequest =
-      error.config as
-        | RetryRequestConfig
-        | undefined;
-
-    if (
-      !response ||
-      !originalRequest
-    ) {
-      return Promise.reject(
-        error
-      );
-    }
-
-    const code =
-      response.data?.code;
-
-    /*
-     * Disabled account:
-     *
-     * don't attempt refresh.
-     */
-    if (
-      response.status ===
-        403 &&
-      code ===
-        "ACCOUNT_DISABLED"
-    ) {
-      await terminateBrowserSession();
-
-      redirectToLogin(
-        "disabled"
-      );
-
-      return Promise.reject(
-        error
-      );
-    }
-    const isRefreshableAuthError =
-    response.status ===
-      401 &&
-    [
-      "ACCESS_TOKEN_EXPIRED",
-      "AUTHENTICATION_REQUIRED",
-      "INVALID_ACCESS_TOKEN",
-  
       /*
-       * Password changes and password recovery
-       * revoke the corresponding DB session.
+       * Network errors do not prove the
+       * authentication session is invalid.
        */
-      "SESSION_REVOKED",
-    ].includes(
-      code
-    );
-
-    const url =
-      originalRequest.url ??
-      "";
-
-    const isAuthEndpoint =
-      url.includes(
-        "/auth/login"
-      ) ||
-      url.includes(
-        "/auth/refresh"
-      ) ||
-      url.includes(
-        "/auth/logout"
-      ) ||
-      url.includes(
-        "/auth/activate-account"
-      );
-
-    if (
-      isRefreshableAuthError &&
-      !originalRequest._retry &&
-      !isAuthEndpoint
-    ) {
-      originalRequest._retry =
-        true;
-
-      try {
-        /*
-         * Refresh cookies silently.
-         */
-        await refreshSession();
-
-        /*
-         * Retry the exact request
-         * that originally failed.
-         */
-        return api(
-          originalRequest
-        );
-      } catch (
-        refreshError
+      if (
+        !original ||
+        !error.response
       ) {
-        await terminateBrowserSession();
+        throw error;
+      }
 
+      const code =
+        error.response
+          .data
+          ?.code;
+
+      /*
+       * Disabled account:
+       *
+       * Refreshing cannot repair it.
+       */
+      if (
+        error.response
+          .status ===
+          403 &&
+        code ===
+          "ACCOUNT_DISABLED"
+      ) {
         redirectToLogin();
 
-        return Promise.reject(
+        throw error;
+      }
+
+      const url =
+        original.url ??
+        "";
+
+      /*
+       * Never intercept auth endpoints
+       * themselves.
+       */
+      const authEndpoint =
+        [
+          "/auth/login",
+          "/auth/refresh",
+          "/auth/logout",
+          "/auth/activate-account",
+          "/auth/reset-password",
+        ].some(
+          (
+            path
+          ) =>
+            url.includes(
+              path
+            )
+        );
+
+      /*
+       * Errors that may be repaired by
+       * refreshing the access JWT.
+       */
+      const refreshable =
+        error.response
+          .status ===
+          401 &&
+        [
+          "ACCESS_TOKEN_EXPIRED",
+          "AUTHENTICATION_REQUIRED",
+          "INVALID_ACCESS_TOKEN",
+          "SESSION_REVOKED",
+        ].includes(
+          code ??
+            ""
+        );
+
+      if (
+        !authEndpoint &&
+        refreshable &&
+        !original._retry
+      ) {
+        original._retry =
+          true;
+
+        try {
+          await refreshSession();
+        } catch (
           refreshError
+        ) {
+          /*
+           * VERY IMPORTANT:
+           *
+           * Don't redirect/logout for:
+           *
+           * - network failure
+           * - Redis outage
+           * - API 500
+           * - rate-limit 429
+           * - stale-token race
+           *
+           * Those do not prove the user's
+           * refresh session is invalid.
+           */
+          if (
+            isTerminalAuthError(
+              refreshError
+            )
+          ) {
+            redirectToLogin();
+          }
+
+          throw refreshError;
+        }
+
+        /*
+         * Retry exactly once using the
+         * newly issued access cookie.
+         */
+        return api(
+          original
         );
       }
+
+      /*
+       * A genuine terminal auth failure
+       * outside auth endpoints means the
+       * user needs to authenticate again.
+       */
+      if (
+        !authEndpoint &&
+        isTerminalAuthError(
+          error
+        )
+      ) {
+        redirectToLogin();
+      }
+
+      throw error;
     }
-
-    return Promise.reject(
-      error
-    );
-  }
-);
-
-export const publicApi =
-  axios.create({
-    baseURL,
-
-    headers: {
-      "Content-Type":
-        "application/json",
-    },
-  });
+  );
