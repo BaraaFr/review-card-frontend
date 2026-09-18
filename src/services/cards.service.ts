@@ -1,4 +1,8 @@
 import {
+  idempotentRequest,
+} from "@/lib/idempotent-request";
+
+import {
   api,
 } from "@/lib/api";
 
@@ -9,81 +13,107 @@ import type {
   ReviewCard,
 } from "@/types/card";
 
-import {
-  idempotentRequest,
-} from "@/lib/idempotent-request";
-
 export type CardFilters = {
   page?: number;
+
   limit?: number;
 
-  status?: CardStatus;
+  status?:
+    CardStatus;
 
-  businessId?: string;
+  businessId?:
+    string;
 
-  storeId?: string;
+  storeId?:
+    string;
 };
 
 type CardsResponse = {
-  success: boolean;
+  success:
+    boolean;
 
-  data: CardsResult;
+  data:
+    CardsResult;
 };
 
 type CardResponse = {
-  success: boolean;
+  success:
+    boolean;
 
   data: {
-    card: ReviewCard;
+    card:
+      ReviewCard;
   };
 };
 
 export type CreateCardPayload = {
   label?:
-  | string
-  | null;
+    | string
+    | null;
 };
 
 export type AssignCardPayload = {
-  storeId: string;
+  storeId:
+    string;
 
-  label?: string;
+  label?:
+    string;
 };
 
 export const cardsService = {
   async getAll(
-    filters: CardFilters
+    filters:
+      CardFilters
   ) {
     const response =
       await api.get<CardsResponse>(
         "/cards",
         {
-          params: filters,
+          params:
+            filters,
         }
       );
 
-    return response.data.data;
+    return response
+      .data
+      .data;
   },
 
+  /*
+   * COMMERCIAL MUTATION
+   */
   async create(
-    payload: CreateCardPayload
+    payload:
+      CreateCardPayload
   ) {
     const response =
-      await api.post<CardResponse>(
+      await idempotentRequest<CardResponse>(
+        "POST",
+
         "/cards",
+
         payload
       );
 
-    return response.data.data
+    return response
+      .data
+      .data
       .card;
   },
 
+  /*
+   * Normal metadata edit.
+   *
+   * Keep using regular API call.
+   */
   async update(
-    cardId: string,
+    cardId:
+      string,
+
     payload: {
       label?:
-      | string
-      | null;
+        | string
+        | null;
     }
   ) {
     const response =
@@ -92,42 +122,65 @@ export const cardsService = {
         payload
       );
 
-    return response.data.data
+    return response
+      .data
+      .data
       .card;
   },
 
+  /*
+   * COMMERCIAL MUTATION
+   */
   async assign(
-    cardId: string,
-    payload: AssignCardPayload
+    cardId:
+      string,
+
+    payload:
+      AssignCardPayload
   ) {
     const response =
-      await api.post<CardResponse>(
+      await idempotentRequest<CardResponse>(
+        "POST",
+
         `/cards/${cardId}/assign`,
+
         payload
       );
 
-    return response.data.data
+    return response
+      .data
+      .data
       .card;
   },
 
+  /*
+   * COMMERCIAL MUTATION
+   */
   async unassign(
-    cardId: string
+    cardId:
+      string
   ) {
     const response =
-      await api.post<CardResponse>(
+      await idempotentRequest<CardResponse>(
+        "POST",
+
         `/cards/${cardId}/unassign`
       );
 
-    return response.data.data
+    return response
+      .data
+      .data
       .card;
   },
 
   async getQrSvg(
-    cardId: string
+    cardId:
+      string
   ) {
     const response =
       await api.get<Blob>(
         `/cards/${cardId}/qr`,
+
         {
           responseType:
             "blob",
@@ -137,8 +190,12 @@ export const cardsService = {
     return response.data;
   },
 
+  /*
+   * COMMERCIAL + PAYMENT MUTATION
+   */
   async deliver(
-    cardId: string,
+    cardId:
+      string,
 
     paymentMethod:
       CardPaymentMethod,
@@ -165,4 +222,3 @@ export const cardsService = {
       .card;
   },
 };
-
