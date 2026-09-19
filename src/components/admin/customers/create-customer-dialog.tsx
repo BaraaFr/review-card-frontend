@@ -101,7 +101,7 @@ export function CreateCustomerDialog({ open, onOpenChange, onCreated }: Props) {
 
       logoUrl: "",
 
-      subscriptionMode: "TRIAL",
+      subscriptionMode: "NONE",
 
       plan: "STARTER",
 
