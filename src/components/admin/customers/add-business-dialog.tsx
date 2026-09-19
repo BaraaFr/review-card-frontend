@@ -327,6 +327,14 @@ export function AddBusinessDialog({
                   <NativeSelectOption value="NONE">
                     No subscription
                   </NativeSelectOption>
+
+                  <NativeSelectOption value="ACTIVE">
+                    Active
+                  </NativeSelectOption>
+
+                  <NativeSelectOption value="TRIAL">
+                    Free trial
+                  </NativeSelectOption>
                 </NativeSelect>
               </div>
 

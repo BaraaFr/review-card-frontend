@@ -149,7 +149,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
         <RangeSelector value={range} onChange={setRange} />
-        <RefreshButton />
+        <RefreshButton queryKey={["analytics"]}/>
 
         </div>
       </div>

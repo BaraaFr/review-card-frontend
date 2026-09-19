@@ -1,45 +1,99 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  useQueryClient,
+  type QueryKey,
+} from "@tanstack/react-query";
 
 import { RefreshCw } from "lucide-react";
 
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 
-export function RefreshButton() {
+type RefreshButtonProps = {
+  queryKey?: QueryKey;
+
+  queryKeys?: readonly QueryKey[];
+
+  label?: string;
+
+  disabled?: boolean;
+
+  exact?: boolean;
+
+  onRefresh?: () => void | Promise<void>;
+};
+
+export function RefreshButton({
+  queryKey,
+  queryKeys,
+  label = "Refresh",
+  disabled = false,
+  exact = false,
+  onRefresh,
+}: RefreshButtonProps) {
   const queryClient = useQueryClient();
 
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] =
+    useState(false);
+
+  const refreshingRef = useRef(false);
 
   const handleRefresh = async () => {
-    if (refreshing) {
+    if (refreshingRef.current || disabled) {
       return;
     }
 
+    const keys: readonly QueryKey[] =
+      queryKeys ?? (queryKey ? [queryKey] : []);
+
+    if (keys.length === 0 && !onRefresh) {
+      return;
+    }
+
+    refreshingRef.current = true;
+    setRefreshing(true);
+
     try {
-      setRefreshing(true);
+      /*
+       * Refresh only queries matching
+       * the supplied keys.
+       *
+       * Active queries are refetched
+       * without clearing their cache.
+       */
+      await Promise.all(
+        keys.map((key) =>
+          queryClient.refetchQueries(
+            {
+              queryKey: key,
+              type: "active",
+              exact,
+            },
+            {
+              throwOnError: true,
+            }
+          )
+        )
+      );
 
       /*
-       * Refresh every currently active
-       * React Query request on this page.
+       * Optional custom refresh action.
        *
-       * This includes things such as:
-       *
-       * - analytics
-       * - subscription
-       * - locations
-       * - Google reputation
-       * - data report
-       *
-       * without clearing the cache.
+       * Useful when a page also needs
+       * to refresh something outside
+       * React Query.
        */
-      await queryClient.refetchQueries({
-        queryKey: ["analytics"],
-        type: "active",
-      });
+      await onRefresh?.();
+    } catch {
+      toast.error(
+        "Unable to refresh data. Please try again."
+      );
     } finally {
+      refreshingRef.current = false;
       setRefreshing(false);
     }
   };
@@ -49,15 +103,26 @@ export function RefreshButton() {
       type="button"
       variant="outline"
       size="sm"
-      disabled={refreshing}
+      disabled={
+        disabled ||
+        refreshing
+      }
       onClick={handleRefresh}
-      className="h-8 gap-2 bg-background shadow-sm"
-      aria-label="Refresh page data"
+      className="h-9 gap-2 bg-background shadow-sm"
+      aria-label={label}
     >
-      <RefreshCw className={`size-4 ${refreshing ? "animate-spin" : ""}`} />
+      <RefreshCw
+        className={
+          refreshing
+            ? "size-4 animate-spin"
+            : "size-4"
+        }
+      />
 
       <span className="hidden sm:inline">
-        {refreshing ? "Refreshing..." : "Refresh"}
+        {refreshing
+          ? "Refreshing..."
+          : label}
       </span>
     </Button>
   );

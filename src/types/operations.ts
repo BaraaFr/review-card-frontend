@@ -64,8 +64,14 @@ export interface OperationalHealth {
 
   dependencies: {
     redis: {
-      available:
-        boolean;
+      available: boolean;
+    };
+  
+    worker: {
+      available: boolean;
+  
+      lastSeenAt:
+        string | null;
     };
   };
 

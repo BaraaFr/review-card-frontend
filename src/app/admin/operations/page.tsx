@@ -103,13 +103,21 @@ export default function AdminOperationsPage() {
       </div>
 
       {/* Overall health */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <HealthCard
           title="Redis"
           healthy={data.dependencies.redis.available}
           icon={Database}
           healthyText="Connected"
           unhealthyText="Unavailable"
+        />
+
+        <HealthCard
+          title="Background worker"
+          healthy={data.dependencies.worker.available}
+          icon={ServerCog}
+          healthyText="Running"
+          unhealthyText="Worker heartbeat missing"
         />
 
         <HealthCard

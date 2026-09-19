@@ -42,6 +42,7 @@ import { AnalyticsLockedState } from "@/components/analytics/analytics-locked-st
 import { useMe } from "@/hooks/auth/use-me";
 import { DataReportPreview } from "@/components/analytics/data-report-preview";
 import { RefreshButton } from "@/components/common/refresh-button";
+import { analyticsKeys } from "@/hooks/analytics/use-analytics";
 
 /*
  * =========================================================
@@ -69,9 +70,15 @@ export default function AnalyticsPage() {
 
   const subscriptionQuery = useSubscriptionUsage(businessId);
 
-  const subscription = useMemo(() => subscriptionQuery.data?.subscription, [subscriptionQuery.data]);
+  const subscription = useMemo(
+    () => subscriptionQuery.data?.subscription,
+    [subscriptionQuery.data]
+  );
 
-  const analyticsAllowed = useMemo(()=>Boolean(subscription?.usable),[subscription]);
+  const analyticsAllowed = useMemo(
+    () => Boolean(subscription?.usable),
+    [subscription]
+  );
   /*
    * =======================================================
    * Location filter
@@ -479,7 +486,7 @@ export default function AnalyticsPage() {
               </div>
 
               <div className="shrink-0">
-                <RefreshButton />
+                <RefreshButton queryKey={["analytics"]} />
               </div>
             </div>
 
