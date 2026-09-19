@@ -1,67 +1,97 @@
-export type AnalyticsRange =
-  | "today"
-  | "7d"
-  | "30d"
-  | "custom";
-
 export type InteractionSource =
   | "NFC"
   | "QR"
   | "UNKNOWN";
 
+export type DashboardAnalyticsRange =
+  | "today"
+  | "7d"
+  | "30d"
+  | "custom";
+
 export interface AnalyticsFilters {
-  businessId?: string;
+  range?:
+    DashboardAnalyticsRange;
 
-  storeId?: string;
+  timeZone?:
+    string;
 
-  cardId?: string;
+  businessId?:
+    string;
 
-  from?: string;
+  storeId?:
+    string;
 
-  to?: string;
+  cardId?:
+    string;
+
+  from?:
+    string;
+
+  to?:
+    string;
 }
 
 export interface AnalyticsPeriod {
-  from: string;
-  to: string;
+  from:
+    string;
+
+  to:
+    string;
 }
 
 export interface AnalyticsOverview {
-  period: AnalyticsPeriod;
+  period:
+    AnalyticsPeriod;
 
-  totalInteractions: number;
+  totalInteractions:
+    number;
 
-  previousInteractions: number;
+  previousInteractions:
+    number;
 
   percentageChange:
     | number
     | null;
 
-  approximateUniqueVisitors: number;
+  approximateUniqueVisitors:
+    number;
 
   source: {
-    nfc: number;
-    qr: number;
-    unknown: number;
+    nfc:
+      number;
+
+    qr:
+      number;
+
+    unknown:
+      number;
   };
 }
 
 export interface TimelinePoint {
-  date: string;
+  date:
+    string;
 
-  total: number;
+  total:
+    number;
 
-  nfc: number;
+  nfc:
+    number;
 
-  qr: number;
+  qr:
+    number;
 
-  unknown: number;
+  unknown:
+    number;
 }
 
 export interface CardAnalytics {
-  id: string;
+  id:
+    string;
 
-  code: string;
+  code:
+    string;
 
   label:
     | string
@@ -74,45 +104,63 @@ export interface CardAnalytics {
 
   store:
     | {
-        id: string;
+        id:
+          string;
 
-        name: string;
+        name:
+          string;
 
         business: {
-          id: string;
-          name: string;
+          id:
+            string;
+
+          name:
+            string;
         };
       }
     | null;
 
-  total: number;
+  total:
+    number;
 
-  nfc: number;
+  nfc:
+    number;
 
-  qr: number;
+  qr:
+    number;
 
-  unknown: number;
+  unknown:
+    number;
 }
 
 export interface StoreAnalytics {
-  id: string;
+  id:
+    string;
 
-  name: string;
+  name:
+    string;
 
   address:
     | string
     | null;
 
   business: {
-    id: string;
-    name: string;
+    id:
+      string;
+
+    name:
+      string;
   };
 
-  total: number;
+  total:
+    number;
 
-  nfc: number;
+  nfc:
+    number;
 
-  qr: number;
+  qr:
+    number;
 
-  unknown: number;
+  unknown:
+    number;
 }

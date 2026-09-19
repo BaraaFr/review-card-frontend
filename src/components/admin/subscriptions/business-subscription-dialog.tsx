@@ -20,15 +20,20 @@ import {
 } from "@/components/ui/skeleton";
 
 type Props = {
-  businessId: string;
+  businessId:
+    string;
 
-  businessName: string;
+  businessName:
+    string;
 
-  open: boolean;
+  open:
+    boolean;
 
-  onOpenChange: (
-    open: boolean
-  ) => void;
+  onOpenChange:
+    (
+      open:
+        boolean
+    ) => void;
 };
 
 export function BusinessSubscriptionDialog({
@@ -38,7 +43,6 @@ export function BusinessSubscriptionDialog({
   onOpenChange,
 }: Props) {
   const {
-    data,
     isLoading,
   } =
     useSubscriptionUsage(
@@ -86,10 +90,6 @@ export function BusinessSubscriptionDialog({
       }
       businessName={
         businessName
-      }
-      subscription={
-        data?.subscription ??
-        null
       }
       open={open}
       onOpenChange={

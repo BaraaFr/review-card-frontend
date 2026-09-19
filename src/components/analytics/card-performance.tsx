@@ -750,7 +750,19 @@ export function CardPerformance({
                 </TableHeader>
 
                 <TableBody>
-                  {cards?.map(
+                  {cards?.sort(
+                    (
+                      a,
+                      b
+                    ) =>
+                      (
+                        b.meaningfulInteractions -
+                        a.meaningfulInteractions
+                      ) ||
+                      a.id.localeCompare(
+                        b.id
+                      )
+                  )?.map(
                     (
                       card,
                       index

@@ -2,9 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { CalendarDays, Download, Loader2, MapPin } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { CalendarDays, MapPin } from "lucide-react";
 
 import {
   Select,
@@ -23,8 +21,6 @@ import { EngagementPatterns } from "@/components/analytics/engagement-patterns";
 import { LocationPerformance } from "@/components/analytics/location-performance";
 
 import { CardPerformance } from "@/components/analytics/card-performance";
-
-import { WeeklyReportPreview } from "@/components/analytics/weekly-report-preview";
 
 import { downloadAnalyticsReport } from "@/services/analytics-report.service";
 
@@ -46,6 +42,7 @@ import { AnalyticsLockedState } from "@/components/analytics/analytics-locked-st
 import { useMe } from "@/hooks/auth/use-me";
 import { DataReportPreview } from "@/components/analytics/data-report-preview";
 import { RefreshButton } from "@/components/common/refresh-button";
+import { analyticsKeys } from "@/hooks/analytics/use-analytics";
 
 /*
  * =========================================================
@@ -73,9 +70,15 @@ export default function AnalyticsPage() {
 
   const subscriptionQuery = useSubscriptionUsage(businessId);
 
-  const subscription = subscriptionQuery.data?.subscription;
+  const subscription = useMemo(
+    () => subscriptionQuery.data?.subscription,
+    [subscriptionQuery.data]
+  );
 
-  const analyticsAllowed = Boolean(subscription?.usable);
+  const analyticsAllowed = useMemo(
+    () => Boolean(subscription?.usable),
+    [subscription]
+  );
   /*
    * =======================================================
    * Location filter
@@ -483,7 +486,7 @@ export default function AnalyticsPage() {
               </div>
 
               <div className="shrink-0">
-                <RefreshButton />
+                <RefreshButton queryKey={["analytics"]} />
               </div>
             </div>
 

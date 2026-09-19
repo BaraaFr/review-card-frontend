@@ -1,39 +1,41 @@
 "use client";
 
 import {
-  useQuery,
-} from "@tanstack/react-query";
-
-import {
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 
 import {
   subscriptionsService,
-  type CreateSubscriptionPayload,
-  type UpdateSubscriptionPayload,
 } from "@/services/subscriptions.service";
-import { SubscriptionPlan } from "@/types/subscription";
+
+import type {
+  SubscriptionPlan,
+} from "@/types/subscription";
 
 export const subscriptionKeys = {
-  all: [
-    "subscriptions",
-  ] as const,
+  all:
+    [
+      "subscriptions",
+    ] as const,
 
   usage: (
-    businessId: string
+    businessId:
+      string
   ) =>
     [
-      ...subscriptionKeys.all,
+      "subscriptions",
       "usage",
       businessId,
     ] as const,
+
   current: (
-    businessId: string
+    businessId:
+      string
   ) =>
     [
-      ...subscriptionKeys.all,
+      "subscriptions",
       "current",
       businessId,
     ] as const,
@@ -46,18 +48,18 @@ export function useSubscriptionUsage(
 ) {
   return useQuery({
     queryKey:
-      subscriptionKeys.usage(
-        businessId ??
-        "none"
-      ),
-
-
-
-    queryFn: () =>
-      subscriptionsService
-        .getUsage(
-          businessId!
+      subscriptionKeys
+        .usage(
+          businessId ??
+            "none"
         ),
+
+    queryFn:
+      () =>
+        subscriptionsService
+          .getUsage(
+            businessId!
+          ),
 
     enabled:
       Boolean(
@@ -65,238 +67,54 @@ export function useSubscriptionUsage(
       ),
   });
 }
-export function useCreateSubscription() {
+
+/*
+ * All successful subscription
+ * mutations affect multiple areas:
+ *
+ * - usage
+ * - admin customer data
+ * - admin subscription data
+ * - payment history
+ */
+function useRefreshSubscriptionData() {
   const queryClient =
     useQueryClient();
 
-  return useMutation({
-    mutationFn: ({
-      businessId,
-      payload,
-    }: {
-      businessId: string;
+  return async () => {
+    await Promise.all([
+      queryClient
+        .invalidateQueries({
+          queryKey:
+            subscriptionKeys
+              .all,
+        }),
 
-      payload:
-        CreateSubscriptionPayload;
-    }) =>
-      subscriptionsService.create(
-        businessId,
-        payload
-      ),
+      queryClient
+        .invalidateQueries({
+          queryKey: [
+            "admin",
+          ],
+        }),
 
-    onSuccess: (
-      newSubscription,
-      variables
-    ) => {
-      /*
-       * Update business usage
-       * immediately.
-       */
-      queryClient.setQueryData(
-        subscriptionKeys.usage(
-          variables.businessId
-        ),
-        (
-          old:
-            | any
-            | undefined
-        ) => {
-          if (!old) {
-            return old;
-          }
-
-          return {
-            ...old,
-
-            subscription:
-              newSubscription,
-          };
-        }
-      );
-
-      /*
-       * Update global admin table.
-       */
-      queryClient.setQueryData(
-        [
-          "admin",
-          "subscriptions",
-        ],
-        (
-          old:
-            | any[]
-            | undefined
-        ) => {
-          if (!old) {
-            return old;
-          }
-
-          return old.map(
-            (record) =>
-              record.business.id ===
-              variables.businessId
-                ? {
-                    ...record,
-
-                    subscription:
-                      newSubscription,
-                  }
-                : record
-          );
-        }
-      );
-
-      /*
-       * Background sync.
-       */
-      queryClient.invalidateQueries({
-        queryKey:
-          subscriptionKeys.usage(
-            variables.businessId
-          ),
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [
-          "admin",
-          "subscriptions",
-        ],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [
-          "admin",
-          "customers",
-        ],
-      });
-    },
-  });
-}
-
-export function useUpdateSubscription() {
-  const queryClient =
-    useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      subscriptionId,
-      businessId,
-      payload,
-    }: {
-      subscriptionId: string;
-
-      businessId: string;
-
-      payload:
-        UpdateSubscriptionPayload;
-    }) =>
-      subscriptionsService.update(
-        subscriptionId,
-        payload
-      ),
-
-    onSuccess: (
-      updatedSubscription,
-      variables
-    ) => {
-      /*
-       * 1. Update subscription usage
-       * cache immediately.
-       */
-      queryClient.setQueryData(
-        subscriptionKeys.usage(
-          variables.businessId
-        ),
-        (
-          old:
-            | any
-            | undefined
-        ) => {
-          if (!old) {
-            return old;
-          }
-
-          return {
-            ...old,
-
-            subscription: {
-              ...old.subscription,
-
-              ...updatedSubscription,
-            },
-          };
-        }
-      );
-
-      /*
-       * 2. Update global admin
-       * subscriptions table
-       * immediately.
-       */
-      queryClient.setQueryData(
-        [
-          "admin",
-          "subscriptions",
-        ],
-        (
-          old:
-            | any[]
-            | undefined
-        ) => {
-          if (!old) {
-            return old;
-          }
-
-          return old.map(
-            (record) =>
-              record.business.id ===
-              variables.businessId
-                ? {
-                    ...record,
-
-                    subscription:
-                      updatedSubscription,
-                  }
-                : record
-          );
-        }
-      );
-
-      /*
-       * 3. Silently verify with
-       * backend afterwards.
-       */
-      queryClient.invalidateQueries({
-        queryKey:
-          subscriptionKeys.usage(
-            variables.businessId
-          ),
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [
-          "admin",
-          "subscriptions",
-        ],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [
-          "admin",
-          "customers",
-        ],
-      });
-    },
-  });
+      queryClient
+        .invalidateQueries({
+          queryKey: [
+            "payments",
+          ],
+        }),
+    ]);
+  };
 }
 
 export function useStartTrial() {
-  const queryClient =
-    useQueryClient();
+  const refresh =
+    useRefreshSubscriptionData();
 
   return useMutation({
     mutationFn: (
-      businessId: string
+      businessId:
+        string
     ) =>
       subscriptionsService
         .startTrial(
@@ -304,98 +122,46 @@ export function useStartTrial() {
         ),
 
     onSuccess:
-      async (
-        _subscription,
-        businessId
-      ) => {
-        await Promise.all([
-          queryClient
-            .invalidateQueries({
-              queryKey:
-                subscriptionKeys
-                  .usage(
-                    businessId
-                  ),
-            }),
-
-          queryClient
-            .invalidateQueries({
-              queryKey: [
-                "admin",
-                "subscriptions",
-              ],
-            }),
-
-          queryClient
-            .invalidateQueries({
-              queryKey: [
-                "admin",
-                "customers",
-              ],
-            }),
-        ]);
-      },
+      refresh,
   });
 }
 
 export function useActivatePaidSubscription() {
-  const queryClient =
-    useQueryClient();
+  const refresh =
+    useRefreshSubscriptionData();
 
   return useMutation({
     mutationFn: ({
       businessId,
-      plan,
-      months,
+      ...payment
     }: {
-      businessId: string;
+      businessId:
+        string;
 
       plan:
         SubscriptionPlan;
 
-      months: number;
+      months:
+        number;
+
+      amountCents:
+        number;
+
+      paymentMethod:
+        | "CASH"
+        | "WHISH"
+        | "OTHER";
+
+      receiptReference:
+        string;
     }) =>
       subscriptionsService
         .activatePaid(
           businessId,
-          {
-            plan,
-            months,
-          }
+          payment
         ),
 
     onSuccess:
-      async (
-        _subscription,
-        variables
-      ) => {
-        await Promise.all([
-          queryClient
-            .invalidateQueries({
-              queryKey:
-                subscriptionKeys
-                  .usage(
-                    variables
-                      .businessId
-                  ),
-            }),
-
-          queryClient
-            .invalidateQueries({
-              queryKey: [
-                "admin",
-                "subscriptions",
-              ],
-            }),
-
-          queryClient
-            .invalidateQueries({
-              queryKey: [
-                "admin",
-                "customers",
-              ],
-            }),
-        ]);
-      },
+      refresh,
   });
 }

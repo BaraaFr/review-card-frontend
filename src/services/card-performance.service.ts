@@ -39,7 +39,6 @@ export async function getCardPerformance({
         },
       }
     );
-    console.log(data)
 
   return data.data;
 }

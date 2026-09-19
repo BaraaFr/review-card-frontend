@@ -264,7 +264,7 @@ function BusinessesEmptyState() {
 
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           Your ValYou account
-          doesn't currently have a
+          does not currently have a
           business workspace
           assigned to it.
         </p>

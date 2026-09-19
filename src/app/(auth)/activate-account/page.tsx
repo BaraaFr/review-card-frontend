@@ -386,7 +386,7 @@ function ActivateAccountContent() {
               Your activation link
               can only be used once.
               After activation,
-              you'll sign in with
+              you will sign in with
               your email and this
               password.
             </div>

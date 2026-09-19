@@ -113,7 +113,7 @@ export function ProfileSettings() {
     return (
       <Card>
         <CardContent className="p-6">
-          <p className="text-sm font-medium">We couldn't load your profile.</p>
+          <p className="text-sm font-medium">We couldn&apos;t load your profile.</p>
 
           <p className="mt-1 text-sm text-muted-foreground">
             Refresh the page and try again.
@@ -360,7 +360,7 @@ export function ProfileSettings() {
                   text-destructive
                 "
               >
-                We couldn't update your profile. Please check your information
+                We couldn&apos;t update your profile. Please check your information
                 and try again.
               </div>
             )}

@@ -17,7 +17,7 @@ import {
   useStoreAnalytics,
 } from "@/hooks/analytics/use-analytics";
 
-import type { AnalyticsRange } from "@/types/analytics";
+import type { DashboardAnalyticsRange } from "@/types/analytics";
 
 import { MetricCard } from "@/components/dashboard/metric-card";
 
@@ -55,7 +55,7 @@ export default function DashboardPage() {
 
   const subscriptionQuery = useSubscriptionUsage(businessId);
 
-  const [range, setRange] = useState<AnalyticsRange>("30d");
+  const [range, setRange] = useState<DashboardAnalyticsRange>("30d");
 
   const filters = useMemo(
     () => ({
@@ -149,7 +149,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
         <RangeSelector value={range} onChange={setRange} />
-        <RefreshButton />
+        <RefreshButton queryKey={["analytics"]}/>
 
         </div>
       </div>
@@ -234,12 +234,12 @@ function RangeSelector({
   value,
   onChange,
 }: {
-  value: AnalyticsRange;
+  value: DashboardAnalyticsRange;
 
-  onChange: (value: AnalyticsRange) => void;
+  onChange: (value: DashboardAnalyticsRange) => void;
 }) {
   const options: {
-    value: AnalyticsRange;
+    value: DashboardAnalyticsRange;
     label: string;
   }[] = [
     {

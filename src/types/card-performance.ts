@@ -5,97 +5,103 @@ export type CardActivityStatus =
 
 export type CardPerformanceItem = {
   id:
-    string;
+  string;
 
   label:
-    string | null;
+  string | null;
 
   code:
-    string;
+  string;
 
   cardStatus:
-    string;
+  string;
 
   meaningfulInteractions:
-    number;
+  number;
 
   uniqueVisitors:
-    number;
+  number;
 
   duplicateTaps:
-    number;
+  number;
 
   sharePercentage:
-    number;
+  number;
 
   lastInteractionAt:
-    string | null;
+  string | null;
 
   activityStatus:
-    CardActivityStatus;
+  CardActivityStatus;
 };
 
 export type CardPerformanceBestCard = {
   id:
-    string;
+  string;
 
   label:
-    string | null;
+  string | null;
 
   code:
-    string;
+  string;
 
   meaningfulInteractions:
-    number;
+  number;
 
   uniqueVisitors:
-    number;
+  number;
 };
 
 export type CardPerformanceData = {
   period: {
     days:
-      number;
+    number;
 
     from:
-      string;
+    string;
+
+    previousFrom: string;
+    previousTo: string;
 
     to:
-      string;
+    string;
+
+    timeZone:
+    string;
   };
 
   summary: {
     totalCards:
-      number;
+    number;
 
     activeCards:
-      number;
+    number;
 
     cardsWithActivity:
-      number;
+    number;
 
     cardsNeedingAttention:
-      number;
+    number;
 
     totalInteractions:
-      number;
+    number;
 
     totalUniqueVisitors:
-      number;
+    number;
 
     bestCard:
-      CardPerformanceBestCard |
-      null;
+    CardPerformanceBestCard |
+    null;
   };
 
   cards:
-    CardPerformanceItem[];
+  CardPerformanceItem[];
 };
 
 export type CardPerformanceResponse = {
   success:
-    boolean;
+  boolean;
 
   data:
-    CardPerformanceData;
+  CardPerformanceData;
 };

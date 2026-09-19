@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 import type {
-  AnalyticsRange,
+  DashboardAnalyticsRange,
 } from "@/types/analytics";
 
 import type {
@@ -33,10 +33,10 @@ import {
 } from "@/components/ui/native-select";
 
 type Props = {
-  range: AnalyticsRange;
+  range: DashboardAnalyticsRange;
 
   onRangeChange: (
-    range: AnalyticsRange
+    range: DashboardAnalyticsRange
   ) => void;
 
   storeId: string;
@@ -77,7 +77,7 @@ type Props = {
 };
 
 const ranges: {
-  value: AnalyticsRange;
+  value: DashboardAnalyticsRange;
   label: string;
 }[] = [
   {

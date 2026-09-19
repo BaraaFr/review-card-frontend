@@ -21,7 +21,6 @@ import {
   Store,
   Zap,
   X,
-  Box,
 } from "lucide-react";
 
 import { AccountRequestForm } from "@/components/landing/account-request-form";
@@ -34,6 +33,7 @@ import { cn } from "@/lib/utils";
 
 import ValYouLogo from "./valyou-logo";
 import InstagramIcon from "./instagram-icon";
+import Link from "next/link";
 
 /*
  * =========================================================
@@ -244,9 +244,9 @@ export function ValYouLandingPage({ isAuth }: { isAuth: boolean }) {
 
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <a href="/" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <ValYouLogo />
-          </a>
+          </Link>
 
           <nav className="hidden items-center gap-7 lg:flex">
             {navigation.map((item) => (

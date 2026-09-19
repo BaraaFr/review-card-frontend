@@ -92,4 +92,12 @@ export interface CardsResult {
   cards: ReviewCard[];
 
   pagination: CardsPagination;
+
+  summary: {
+    ready: number;
+
+    active: number;
+
+    inactive: number;
+  };
 }

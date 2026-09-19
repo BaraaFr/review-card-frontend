@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   AlertTriangle,
@@ -14,18 +10,11 @@ import {
   Star,
 } from "lucide-react";
 
-import {
-  toast,
-} from "sonner";
+import { toast } from "sonner";
 
-import {
-  Badge,
-} from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
-import {
-  Button,
-  buttonVariants,
-} from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 import {
   Card,
@@ -35,21 +24,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import {
-  Skeleton,
-} from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import {
-  useGoogleReputation,
-} from "@/hooks/google/use-google-reputation";
+import { useGoogleReputation } from "@/hooks/google/use-google-reputation";
 
-import {
-  cn,
-} from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
-import type {
-  Store,
-} from "@/types/business";
+import type { Store } from "@/types/business";
+import Image from "next/image";
 
 /*
  * Owner can manually request fresh
@@ -58,31 +40,20 @@ import type {
  * This is UX protection and cost
  * protection.
  */
-const MANUAL_REFRESH_COOLDOWN_MS =
-  10 * 60 * 1000;
+const MANUAL_REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
 
 type Props = {
   store: Store;
 
-  hasAnalyticsAccess:
-    boolean;
+  hasAnalyticsAccess: boolean;
 };
 
-function getRefreshStorageKey(
-  storeId: string
-) {
+function getRefreshStorageKey(storeId: string) {
   return `valyou:google-reputation:last-manual-refresh:${storeId}`;
 }
 
-function RatingStars({
-  rating,
-}: {
-  rating: number;
-}) {
-  const rounded =
-    Math.round(
-      rating
-    );
+function RatingStars({ rating }: { rating: number }) {
+  const rounded = Math.round(rating);
 
   return (
     <div
@@ -91,26 +62,18 @@ function RatingStars({
     >
       {Array.from({
         length: 5,
-      }).map(
-        (
-          _,
-          index
-        ) => (
-          <Star
-            key={
-              index
-            }
-            className={cn(
-              "size-4",
+      }).map((_, index) => (
+        <Star
+          key={index}
+          className={cn(
+            "size-4",
 
-              index <
-                rounded
-                ? "fill-current text-amber-500"
-                : "text-muted-foreground/30"
-            )}
-          />
-        )
-      )}
+            index < rounded
+              ? "fill-current text-amber-500"
+              : "text-muted-foreground/30"
+          )}
+        />
+      ))}
     </div>
   );
 }
@@ -141,66 +104,40 @@ function ReputationLoading() {
   );
 }
 
-function formatLastChecked(
-  timestamp: number
-) {
+function formatLastChecked(timestamp: number) {
   if (!timestamp) {
     return null;
   }
 
-  return new Intl.DateTimeFormat(
-    undefined,
-    {
-      hour:
-        "numeric",
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
 
-      minute:
-        "2-digit",
-    }
-  ).format(
-    new Date(
-      timestamp
-    )
-  );
+    minute: "2-digit",
+  }).format(new Date(timestamp));
 }
 
-function formatCooldown(
-  milliseconds: number
-) {
-  const minutes =
-    Math.ceil(
-      milliseconds /
-        60_000
-    );
+function formatCooldown(milliseconds: number) {
+  const minutes = Math.ceil(milliseconds / 60_000);
 
-  if (
-    minutes <= 1
-  ) {
+  if (minutes <= 1) {
     return "less than a minute";
   }
 
   return `${minutes} minutes`;
 }
 
-export function GoogleReputationCard({
-  store,
-  hasAnalyticsAccess,
-}: Props) {
-  const validConnection =
-    Boolean(
-      store.googlePlaceId &&
+export function GoogleReputationCard({ store, hasAnalyticsAccess }: Props) {
+  const validConnection = Boolean(
+    store.googlePlaceId &&
       store.googleReviewUrl &&
-      store.googlePlaceConnectedFromUrl ===
-        store.googleReviewUrl
-    );
+      store.googlePlaceConnectedFromUrl === store.googleReviewUrl
+  );
 
-  const reputation =
-    useGoogleReputation(
-      store.id,
+  const reputation = useGoogleReputation(
+    store.id,
 
-      hasAnalyticsAccess &&
-        validConnection
-    );
+    hasAnalyticsAccess && validConnection
+  );
 
   /*
    * --------------------------------------------------
@@ -208,47 +145,21 @@ export function GoogleReputationCard({
    * --------------------------------------------------
    */
 
-  const [
-    lastManualRefreshAt,
-    setLastManualRefreshAt,
-  ] =
-    useState(0);
-
-  const [
-    currentTime,
-    setCurrentTime,
-  ] =
-    useState(
-      Date.now()
-    );
+  const [lastManualRefreshAt, setLastManualRefreshAt] = useState(0);
+  const now = Date.now();
+  const [currentTime, setCurrentTime] = useState(now);
 
   useEffect(() => {
-    const stored =
-      window.localStorage.getItem(
-        getRefreshStorageKey(
-          store.id
-        )
-      );
+    const stored = window.localStorage.getItem(getRefreshStorageKey(store.id));
 
     if (stored) {
-      const timestamp =
-        Number(
-          stored
-        );
+      const timestamp = Number(stored);
 
-      if (
-        Number.isFinite(
-          timestamp
-        )
-      ) {
-        setLastManualRefreshAt(
-          timestamp
-        );
+      if (Number.isFinite(timestamp)) {
+        setLastManualRefreshAt(timestamp);
       }
     }
-  }, [
-    store.id,
-  ]);
+  }, [store.id]);
 
   /*
    * Only tick while the cooldown
@@ -257,73 +168,44 @@ export function GoogleReputationCard({
    * 30 seconds is plenty.
    */
   useEffect(() => {
-    const interval =
-      window.setInterval(
-        () => {
-          setCurrentTime(
-            Date.now()
-          );
-        },
-        30_000
-      );
+    const interval = window.setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 30_000);
 
     return () => {
-      window.clearInterval(
-        interval
-      );
+      window.clearInterval(interval);
     };
   }, []);
 
-  const nextRefreshAt =
-    lastManualRefreshAt +
-    MANUAL_REFRESH_COOLDOWN_MS;
+  const nextRefreshAt = lastManualRefreshAt + MANUAL_REFRESH_COOLDOWN_MS;
 
-  const remainingCooldown =
-    Math.max(
-      0,
+  const remainingCooldown = Math.max(
+    0,
 
-      nextRefreshAt -
-        currentTime
-    );
+    nextRefreshAt - currentTime
+  );
 
-  const refreshAvailable =
-    remainingCooldown ===
-    0;
+  const refreshAvailable = remainingCooldown === 0;
 
   /*
    * React Query tells us when
    * the latest successful request
    * completed.
    */
-  const lastCheckedLabel =
-    useMemo(
-      () =>
-        formatLastChecked(
-          reputation.dataUpdatedAt
-        ),
+  const lastCheckedLabel = useMemo(
+    () => formatLastChecked(reputation.dataUpdatedAt),
 
-      [
-        reputation.dataUpdatedAt,
-      ]
-    );
+    [reputation.dataUpdatedAt]
+  );
 
   async function handleManualRefresh() {
-    if (
-      !refreshAvailable ||
-      reputation.isFetching
-    ) {
+    if (!refreshAvailable || reputation.isFetching) {
       return;
     }
 
-    const previousReviewCount =
-      reputation.data
-        ?.reviewCount ??
-      0;
+    const previousReviewCount = reputation.data?.reviewCount ?? 0;
 
-    const previousRating =
-      reputation.data
-        ?.rating ??
-      null;
+    const previousRating = reputation.data?.rating ?? null;
 
     try {
       /*
@@ -331,25 +213,17 @@ export function GoogleReputationCard({
        * and makes an intentional
        * fresh request.
        */
-      const result =
-        await reputation.refetch();
+      const result = await reputation.refetch();
 
-      if (
-        result.error
-      ) {
+      if (result.error) {
         throw result.error;
       }
 
-      const refreshedAt =
-        Date.now();
+      const refreshedAt = Date.now();
 
-      setLastManualRefreshAt(
-        refreshedAt
-      );
+      setLastManualRefreshAt(refreshedAt);
 
-      setCurrentTime(
-        refreshedAt
-      );
+      setCurrentTime(refreshedAt);
 
       /*
        * Persist ONLY our own
@@ -359,40 +233,21 @@ export function GoogleReputationCard({
        * review/rating content here.
        */
       window.localStorage.setItem(
-        getRefreshStorageKey(
-          store.id
-        ),
+        getRefreshStorageKey(store.id),
 
-        String(
-          refreshedAt
-        )
+        String(refreshedAt)
       );
 
-      const newReviewCount =
-        result.data
-          ?.reviewCount ??
-        0;
+      const newReviewCount = result.data?.reviewCount ?? 0;
 
-      const newRating =
-        result.data
-          ?.rating ??
-        null;
+      const newRating = result.data?.rating ?? null;
 
-      const reviewCountChanged =
-        newReviewCount !==
-        previousReviewCount;
+      const reviewCountChanged = newReviewCount !== previousReviewCount;
 
-      const ratingChanged =
-        newRating !==
-        previousRating;
+      const ratingChanged = newRating !== previousRating;
 
-      if (
-        reviewCountChanged ||
-        ratingChanged
-      ) {
-        toast.success(
-          "Google reputation updated."
-        );
+      if (reviewCountChanged || ratingChanged) {
+        toast.success("Google reputation updated.");
 
         return;
       }
@@ -400,21 +255,14 @@ export function GoogleReputationCard({
       toast.info(
         "No newer Google data is available yet. New reviews can take time to appear after Google processes them."
       );
-    } catch (
-      error
-    ) {
-      console.error(
-        "Google reputation refresh failed:",
-        error
-      );
+    } catch (error) {
+      console.error("Google reputation refresh failed:", error);
 
       /*
        * Failed requests do not
        * start the cooldown.
        */
-      toast.error(
-        "Google reputation couldn't be refreshed. Please try again."
-      );
+      toast.error("Google reputation couldn't be refreshed. Please try again.");
     }
   }
 
@@ -424,9 +272,7 @@ export function GoogleReputationCard({
    * --------------------------------------------------
    */
 
-  if (
-    !hasAnalyticsAccess
-  ) {
+  if (!hasAnalyticsAccess) {
     return (
       <Card>
         <CardHeader>
@@ -436,14 +282,10 @@ export function GoogleReputationCard({
             </div>
 
             <div>
-              <CardTitle>
-                Google Reputation
-              </CardTitle>
+              <CardTitle>Google Reputation</CardTitle>
 
               <CardDescription className="mt-1">
-                Reputation analytics
-                require an active
-                subscription.
+                Reputation analytics require an active subscription.
               </CardDescription>
             </div>
           </div>
@@ -452,11 +294,8 @@ export function GoogleReputationCard({
         <CardContent>
           <div className="rounded-xl border border-dashed p-5">
             <p className="text-sm text-muted-foreground">
-              Google reputation
-              data is locked while
-              this business does
-              not have an active
-              subscription.
+              Google reputation data is locked while this business does not have
+              an active subscription.
             </p>
           </div>
         </CardContent>
@@ -470,20 +309,14 @@ export function GoogleReputationCard({
    * --------------------------------------------------
    */
 
-  if (
-    !validConnection
-  ) {
+  if (!validConnection) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>
-            Google Reputation
-          </CardTitle>
+          <CardTitle>Google Reputation</CardTitle>
 
           <CardDescription>
-            Connect this location
-            to Google before
-            viewing its reputation.
+            Connect this location to Google before viewing its reputation.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -496,12 +329,8 @@ export function GoogleReputationCard({
    * --------------------------------------------------
    */
 
-  if (
-    reputation.isLoading
-  ) {
-    return (
-      <ReputationLoading />
-    );
+  if (reputation.isLoading) {
+    return <ReputationLoading />;
   }
 
   /*
@@ -510,9 +339,7 @@ export function GoogleReputationCard({
    * --------------------------------------------------
    */
 
-  if (
-    reputation.isError
-  ) {
+  if (reputation.isError) {
     return (
       <Card>
         <CardHeader>
@@ -522,13 +349,10 @@ export function GoogleReputationCard({
             </div>
 
             <div>
-              <CardTitle>
-                Google Reputation
-              </CardTitle>
+              <CardTitle>Google Reputation</CardTitle>
 
               <CardDescription className="mt-1">
-                Google reputation
-                couldn't be loaded.
+                Google reputation couldn't be loaded.
               </CardDescription>
             </div>
           </div>
@@ -538,22 +362,16 @@ export function GoogleReputationCard({
           <Button
             type="button"
             variant="outline"
-            disabled={
-              reputation.isFetching
-            }
-            onClick={() =>
-              reputation.refetch()
-            }
+            disabled={reputation.isFetching}
+            onClick={() => reputation.refetch()}
           >
             <RefreshCw
               className={cn(
                 "size-4",
 
-                reputation.isFetching &&
-                  "animate-spin"
+                reputation.isFetching && "animate-spin"
               )}
             />
-
             Try again
           </Button>
         </CardContent>
@@ -561,23 +379,16 @@ export function GoogleReputationCard({
     );
   }
 
-  const data =
-    reputation.data;
+  const data = reputation.data;
 
-  if (
-    !data ||
-    !data.connected
-  ) {
+  if (!data || !data.connected) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>
-            Google Reputation
-          </CardTitle>
+          <CardTitle>Google Reputation</CardTitle>
 
           <CardDescription>
-            {data?.reason ===
-            "RECONNECT_REQUIRED"
+            {data?.reason === "RECONNECT_REQUIRED"
               ? "The Google Review URL changed. Reconnect this location to Google."
               : "Google isn't connected to this location."}
           </CardDescription>
@@ -586,17 +397,11 @@ export function GoogleReputationCard({
     );
   }
 
-  const rating =
-    data.rating ??
-    null;
+  const rating = data.rating ?? null;
 
-  const reviewCount =
-    data.reviewCount ??
-    0;
+  const reviewCount = data.reviewCount ?? 0;
 
-  const reviews =
-    data.reviews ??
-    [];
+  const reviews = data.reviews ?? [];
 
   return (
     <Card>
@@ -609,30 +414,20 @@ export function GoogleReputationCard({
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <CardTitle>
-                Google Reputation
-              </CardTitle>
+              <CardTitle>Google Reputation</CardTitle>
 
-              <Badge variant="secondary">
-                Google Maps
-              </Badge>
+              <Badge variant="secondary">Google Maps</Badge>
             </div>
 
             <CardDescription className="mt-1">
-              {data.businessName ??
-                store.name}
+              {data.businessName ?? store.name}
 
-              {data.address
-                ? ` · ${data.address}`
-                : ""}
+              {data.address ? ` · ${data.address}` : ""}
             </CardDescription>
 
             {lastCheckedLabel && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Last checked{" "}
-                {
-                  lastCheckedLabel
-                }
+                Last checked {lastCheckedLabel}
               </p>
             )}
           </div>
@@ -647,53 +442,40 @@ export function GoogleReputationCard({
               type="button"
               variant="outline"
               size="sm"
-              disabled={
-                reputation.isFetching ||
-                !refreshAvailable
-              }
-              onClick={
-                handleManualRefresh
-              }
+              disabled={reputation.isFetching || !refreshAvailable}
+              onClick={handleManualRefresh}
             >
               <RefreshCw
                 className={cn(
                   "size-4",
 
-                  reputation.isFetching &&
-                    "animate-spin"
+                  reputation.isFetching && "animate-spin"
                 )}
               />
 
               {reputation.isFetching
                 ? "Refreshing..."
                 : refreshAvailable
-                  ? "Refresh from Google"
-                  : `Refresh in ${formatCooldown(
-                      remainingCooldown
-                    )}`}
+                ? "Refresh from Google"
+                : `Refresh in ${formatCooldown(remainingCooldown)}`}
             </Button>
 
             {data.googleMapsUrl && (
               <a
-                href={
-                  data.googleMapsUrl
-                }
+                href={data.googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
                   buttonVariants({
-                    variant:
-                      "outline",
+                    variant: "outline",
 
-                    size:
-                      "sm",
+                    size: "sm",
                   }),
 
                   "gap-2"
                 )}
               >
                 View on Google
-
                 <ExternalLink className="size-4" />
               </a>
             )}
@@ -709,35 +491,19 @@ export function GoogleReputationCard({
          */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border bg-muted/20 p-5">
-            <p className="text-sm text-muted-foreground">
-              Google rating
-            </p>
+            <p className="text-sm text-muted-foreground">Google rating</p>
 
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <p className="text-3xl font-semibold tracking-tight">
-                {rating !==
-                null
-                  ? rating.toFixed(
-                      1
-                    )
-                  : "—"}
+                {rating !== null ? rating.toFixed(1) : "—"}
               </p>
 
-              {rating !==
-                null && (
-                <RatingStars
-                  rating={
-                    rating
-                  }
-                />
-              )}
+              {rating !== null && <RatingStars rating={rating} />}
             </div>
           </div>
 
           <div className="rounded-xl border bg-muted/20 p-5">
-            <p className="text-sm text-muted-foreground">
-              Google reviews
-            </p>
+            <p className="text-sm text-muted-foreground">Google reviews</p>
 
             <p className="mt-2 text-3xl font-semibold tracking-tight">
               {reviewCount.toLocaleString()}
@@ -752,179 +518,112 @@ export function GoogleReputationCard({
          */}
         <div className="rounded-xl border bg-muted/20 px-4 py-3">
           <p className="text-xs leading-5 text-muted-foreground">
-            Recently submitted
-            Google reviews may take
-            some time to appear.
-            Use Refresh from Google
-            when you expect updated
-            reputation data.
+            Recently submitted Google reviews may take some time to appear. Use
+            Refresh from Google when you expect updated reputation data.
           </p>
         </div>
 
-        {/*
-         * ------------------------------------------------
-         * Reviews
-         * ------------------------------------------------
-         */}
         <div>
           <div className="mb-4">
-            <h3 className="font-semibold">
-              Featured Google
-              Reviews
-            </h3>
+            <h3 className="font-semibold">Featured Google Reviews</h3>
 
             <p className="mt-1 text-sm text-muted-foreground">
-              Up to 5 reviews
-              selected by Google
-              based on relevance.
+              Up to 5 reviews selected by Google based on relevance.
             </p>
           </div>
 
-          {reviews.length ===
-          0 ? (
+          {reviews.length === 0 ? (
             <div className="rounded-xl border border-dashed p-6">
               <p className="text-sm text-muted-foreground">
-                No Google review
-                content is available
-                for this location
-                yet.
+                No Google review content is available for this location yet.
               </p>
             </div>
           ) : (
             <div className="space-y-3">
-              {reviews.map(
-                (
-                  review
-                ) => {
-                  const initial =
-                    (
-                      review.author
-                        .name?.[0] ??
-                      "G"
-                    ).toUpperCase();
+              {reviews.map((review) => {
+                const initial = (review.author.name?.[0] ?? "G").toUpperCase();
 
-                  return (
-                    <div
-                      key={
-                        review.id
-                      }
-                      className="rounded-xl border p-4"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-sm font-medium">
-                            {review
-                              .author
-                              .photoUrl ? (
-                              <img
-                                src={
-                                  review
-                                    .author
-                                    .photoUrl
-                                }
-                                alt=""
-                                className="size-full object-cover"
-                              />
-                            ) : (
-                              initial
-                            )}
-                          </div>
-
-                          <div className="min-w-0">
-                            {review
-                              .author
-                              .profileUrl ? (
-                              <a
-                                href={
-                                  review
-                                    .author
-                                    .profileUrl
-                                }
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="truncate text-sm font-medium hover:underline"
-                              >
-                                {
-                                  review
-                                    .author
-                                    .name
-                                }
-                              </a>
-                            ) : (
-                              <p className="truncate text-sm font-medium">
-                                {
-                                  review
-                                    .author
-                                    .name
-                                }
-                              </p>
-                            )}
-
-                            <div className="mt-1 flex flex-wrap items-center gap-2">
-                              <RatingStars
-                                rating={
-                                  review.rating
-                                }
-                              />
-
-                              {review.relativeTime && (
-                                <span className="text-xs text-muted-foreground">
-                                  {
-                                    review.relativeTime
-                                  }
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                return (
+                  <div key={review.id} className="rounded-xl border p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-sm font-medium">
+                          {review.author.photoUrl ? (
+                            <img
+                              width={200}
+                              height={200}
+                              src={review.author.photoUrl}
+                              alt=""
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            initial
+                          )}
                         </div>
 
-                        {review.rating <=
-                          2 && (
-                          <Badge variant="destructive">
-                            Needs attention
-                          </Badge>
-                        )}
+                        <div className="min-w-0">
+                          {review.author.profileUrl ? (
+                            <a
+                              href={review.author.profileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="truncate text-sm font-medium hover:underline"
+                            >
+                              {review.author.name}
+                            </a>
+                          ) : (
+                            <p className="truncate text-sm font-medium">
+                              {review.author.name}
+                            </p>
+                          )}
+
+                          <div className="mt-1 flex flex-wrap items-center gap-2">
+                            <RatingStars rating={review.rating} />
+
+                            {review.relativeTime && (
+                              <span className="text-xs text-muted-foreground">
+                                {review.relativeTime}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
-                      {review.text && (
-                        <p
-                          dir="auto"
-                          className="mt-4 whitespace-pre-wrap text-sm leading-6"
-                        >
-                          {
-                            review.text
-                          }
-                        </p>
-                      )}
-
-                      {review.googleMapsUrl && (
-                        <div className="mt-4">
-                          <a
-                            href={
-                              review.googleMapsUrl
-                            }
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-                          >
-                            View review
-                            on Google
-
-                            <ExternalLink className="size-3" />
-                          </a>
-                        </div>
+                      {review.rating <= 2 && (
+                        <Badge variant="destructive">Needs attention</Badge>
                       )}
                     </div>
-                  );
-                }
-              )}
+
+                    {review.text && (
+                      <p
+                        dir="auto"
+                        className="mt-4 whitespace-pre-wrap text-sm leading-6"
+                      >
+                        {review.text}
+                      </p>
+                    )}
+
+                    {review.googleMapsUrl && (
+                      <div className="mt-4">
+                        <a
+                          href={review.googleMapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                          View review on Google
+                          <ExternalLink className="size-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground">
-          Google Maps
-        </p>
+        <p className="text-xs text-muted-foreground">Google Maps</p>
       </CardContent>
     </Card>
   );

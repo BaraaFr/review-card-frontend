@@ -7,12 +7,12 @@ import {
 } from "next/navigation";
 
 import {
+  Activity,
   BarChart3,
   Building2,
   CreditCard,
   LayoutDashboard,
   MapPin,
-  Radio,
   ScanLine,
   UsersRound,
   WalletCards,
@@ -120,7 +120,17 @@ const adminNavigation = [
     href: "/admin/subscriptions",
     icon: CreditCard,
   },
-];
+  
+  {
+    title:
+      "Operations",
+  
+    href:
+      "/admin/operations",
+  
+    icon:
+      Activity,
+  },];
 
 export function AppSidebar() {
   const pathname =
