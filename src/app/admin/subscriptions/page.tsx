@@ -26,51 +26,33 @@ import type {
   AdminSubscriptionRecord,
 } from "@/types/admin-subscription";
 
-import type {
-  SubscriptionPlan,
-} from "@/types/subscription";
+import type { SubscriptionPlan } from "@/types/subscription";
 
 import {
   useAdminSubscriptions,
   adminSubscriptionKeys,
 } from "@/hooks/admin/subscriptions/use-admin-subscriptions";
 
-import {
-  BusinessSubscriptionDialog,
-} from "@/components/admin/subscriptions/business-subscription-dialog";
+import { BusinessSubscriptionDialog } from "@/components/admin/subscriptions/business-subscription-dialog";
 
-import {
-  SubscriptionStatCard,
-} from "@/components/admin/subscriptions/subscription-stat-card";
+import { SubscriptionStatCard } from "@/components/admin/subscriptions/subscription-stat-card";
 
-import {
-  SubscriptionStatusBadge,
-} from "@/components/subscriptions/subscription-status";
+import { SubscriptionStatusBadge } from "@/components/subscriptions/subscription-status";
 
-import {
-  CustomerStatusBadge,
-} from "@/components/admin/customers/customer-status-badge";
+import { CustomerStatusBadge } from "@/components/admin/customers/customer-status-badge";
 
-import {
-  RefreshButton,
-} from "@/components/common/refresh-button";
+import { RefreshButton } from "@/components/common/refresh-button";
 
-import {
-  Button,
-} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
-import {
-  Input,
-} from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 
 import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
 
-import {
-  Skeleton,
-} from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   Table,
@@ -80,6 +62,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { RenewalDesk } from "@/components/admin/subscriptions/renewal-desk";
 
 type EffectiveStatus =
   | "TRIAL"
@@ -108,11 +91,9 @@ export default function AdminSubscriptionsPage() {
 
   const [search, setSearch] = useState("");
 
-  const [status, setStatus] =
-    useState<AdminSubscriptionFilterStatus>("");
+  const [status, setStatus] = useState<AdminSubscriptionFilterStatus>("");
 
-  const [plan, setPlan] =
-    useState<"" | SubscriptionPlan>("");
+  const [plan, setPlan] = useState<"" | SubscriptionPlan>("");
 
   const [selectedBusiness, setSelectedBusiness] =
     useState<SelectedBusiness | null>(null);
@@ -165,24 +146,16 @@ export default function AdminSubscriptionsPage() {
    * ======================================================= */
 
   const filteredRecords = useMemo(() => {
-    const normalizedSearch =
-      search.trim().toLowerCase();
+    const normalizedSearch = search.trim().toLowerCase();
 
     return records.filter((record) => {
-      const currentStatus =
-        getEffectiveStatus(record);
+      const currentStatus = getEffectiveStatus(record);
 
-      if (
-        status &&
-        currentStatus !== status
-      ) {
+      if (status && currentStatus !== status) {
         return false;
       }
 
-      if (
-        plan &&
-        record.subscription?.plan !== plan
-      ) {
+      if (plan && record.subscription?.plan !== plan) {
         return false;
       }
 
@@ -197,9 +170,7 @@ export default function AdminSubscriptionsPage() {
           .join(" ")
           .toLowerCase();
 
-        if (
-          !searchable.includes(normalizedSearch)
-        ) {
+        if (!searchable.includes(normalizedSearch)) {
           return false;
         }
       }
@@ -208,10 +179,7 @@ export default function AdminSubscriptionsPage() {
     });
   }, [records, search, status, plan]);
 
-  const hasFilters =
-    Boolean(search.trim()) ||
-    Boolean(status) ||
-    Boolean(plan);
+  const hasFilters = Boolean(search.trim()) || Boolean(status) || Boolean(plan);
 
   const clearFilters = () => {
     setSearch("");
@@ -219,9 +187,7 @@ export default function AdminSubscriptionsPage() {
     setPlan("");
   };
 
-  const openManage = (
-    record: AdminSubscriptionRecord
-  ) => {
+  const openManage = (record: AdminSubscriptionRecord) => {
     setSelectedBusiness({
       id: record.business.id,
       name: record.business.name,
@@ -231,14 +197,12 @@ export default function AdminSubscriptionsPage() {
   return (
     <>
       <div className="min-w-0 w-full max-w-full space-y-6 pb-8 sm:space-y-7">
-
         {/* =================================================
          * HEADER
          * ================================================= */}
 
         <header className="min-w-0">
           <div className="flex flex-col gap-5 border-b border-border/60 pb-6 lg:flex-row lg:items-end lg:justify-between">
-
             {/* Heading */}
 
             <div className="min-w-0 flex-1">
@@ -255,18 +219,15 @@ export default function AdminSubscriptionsPage() {
               </h1>
 
               <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-                Monitor subscription access, track
-                workspaces that need attention, and
-                manage plans across ValYou.
+                Monitor subscription access, track workspaces that need
+                attention, and manage plans across ValYou.
               </p>
             </div>
 
             {/* Header action */}
 
             <div className="flex shrink-0 items-center lg:pb-1">
-              <RefreshButton
-                queryKey={adminSubscriptionKeys.all}
-              />
+              <RefreshButton queryKey={adminSubscriptionKeys.all} />
             </div>
           </div>
         </header>
@@ -331,7 +292,6 @@ export default function AdminSubscriptionsPage() {
          * ================================================= */}
 
         <section className="min-w-0 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
-
           {/* Panel heading */}
 
           <div className="flex flex-col gap-3 border-b border-border/60 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
@@ -341,16 +301,14 @@ export default function AdminSubscriptionsPage() {
               </h2>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                Browse and manage access for each
-                business workspace.
+                Browse and manage access for each business workspace.
               </p>
             </div>
 
             {!isLoading && !isError && (
               <div className="flex shrink-0 items-center">
                 <span className="rounded-full border border-border/70 bg-muted/40 px-3 py-1.5 text-xs font-medium text-muted-foreground">
-                  {filteredRecords.length} of{" "}
-                  {records.length}
+                  {filteredRecords.length} of {records.length}
                 </span>
               </div>
             )}
@@ -361,13 +319,10 @@ export default function AdminSubscriptionsPage() {
            * ================================================= */}
 
           <div className="space-y-3 border-b border-border/60 bg-muted/20 p-4 sm:p-5">
-
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="size-4 text-muted-foreground" />
 
-              <p className="text-sm font-medium">
-                Filters
-              </p>
+              <p className="text-sm font-medium">Filters</p>
             </div>
 
             <div
@@ -389,9 +344,7 @@ export default function AdminSubscriptionsPage() {
 
                 <Input
                   value={search}
-                  onChange={(event) =>
-                    setSearch(event.target.value)
-                  }
+                  onChange={(event) => setSearch(event.target.value)}
                   placeholder="Search customer, email or business..."
                   aria-label="Search subscriptions"
                   className="h-10 min-w-0 w-full pl-10"
@@ -406,22 +359,15 @@ export default function AdminSubscriptionsPage() {
                 aria-label="Filter by subscription status"
                 onChange={(event) =>
                   setStatus(
-                    event.currentTarget
-                      .value as AdminSubscriptionFilterStatus
+                    event.currentTarget.value as AdminSubscriptionFilterStatus
                   )
                 }
               >
-                <NativeSelectOption value="">
-                  All statuses
-                </NativeSelectOption>
+                <NativeSelectOption value="">All statuses</NativeSelectOption>
 
-                <NativeSelectOption value="ACTIVE">
-                  Active
-                </NativeSelectOption>
+                <NativeSelectOption value="ACTIVE">Active</NativeSelectOption>
 
-                <NativeSelectOption value="TRIAL">
-                  Trial
-                </NativeSelectOption>
+                <NativeSelectOption value="TRIAL">Trial</NativeSelectOption>
 
                 <NativeSelectOption value="PAST_DUE">
                   Past due
@@ -431,9 +377,7 @@ export default function AdminSubscriptionsPage() {
                   Canceled
                 </NativeSelectOption>
 
-                <NativeSelectOption value="EXPIRED">
-                  Expired
-                </NativeSelectOption>
+                <NativeSelectOption value="EXPIRED">Expired</NativeSelectOption>
 
                 <NativeSelectOption value="NO_SUBSCRIPTION">
                   No subscription
@@ -447,23 +391,14 @@ export default function AdminSubscriptionsPage() {
                 value={plan}
                 aria-label="Filter by subscription plan"
                 onChange={(event) =>
-                  setPlan(
-                    event.currentTarget
-                      .value as "" | SubscriptionPlan
-                  )
+                  setPlan(event.currentTarget.value as "" | SubscriptionPlan)
                 }
               >
-                <NativeSelectOption value="">
-                  All plans
-                </NativeSelectOption>
+                <NativeSelectOption value="">All plans</NativeSelectOption>
 
-                <NativeSelectOption value="STARTER">
-                  Starter
-                </NativeSelectOption>
+                <NativeSelectOption value="STARTER">Starter</NativeSelectOption>
 
-                <NativeSelectOption value="PRO">
-                  Pro
-                </NativeSelectOption>
+                <NativeSelectOption value="PRO">Pro</NativeSelectOption>
 
                 <NativeSelectOption value="BUSINESS">
                   Business
@@ -474,7 +409,6 @@ export default function AdminSubscriptionsPage() {
             {/* Filter footer */}
 
             <div className="flex min-h-8 flex-wrap items-center justify-between gap-2">
-
               <p className="text-xs text-muted-foreground">
                 {hasFilters
                   ? `Showing ${filteredRecords.length} matching workspaces`
@@ -490,7 +424,6 @@ export default function AdminSubscriptionsPage() {
                   onClick={clearFilters}
                 >
                   <X className="size-3.5" />
-
                   Clear filters
                 </Button>
               )}
@@ -515,8 +448,7 @@ export default function AdminSubscriptionsPage() {
                 </h3>
 
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Something went wrong while loading
-                  subscription data.
+                  Something went wrong while loading subscription data.
                 </p>
 
                 <Button
@@ -528,7 +460,6 @@ export default function AdminSubscriptionsPage() {
                   }}
                 >
                   <RefreshCw className="size-4" />
-
                   Try again
                 </Button>
               </div>
@@ -549,9 +480,7 @@ export default function AdminSubscriptionsPage() {
                   <SubscriptionMobileCard
                     key={record.business.id}
                     record={record}
-                    onManage={() =>
-                      openManage(record)
-                    }
+                    onManage={() => openManage(record)}
                   />
                 ))}
               </div>
@@ -564,29 +493,17 @@ export default function AdminSubscriptionsPage() {
                 <Table className="min-w-[900px]">
                   <TableHeader>
                     <TableRow className="bg-muted/30 hover:bg-muted/30">
-                      <TableHead className="pl-5">
-                        Customer
-                      </TableHead>
+                      <TableHead className="pl-5">Customer</TableHead>
 
-                      <TableHead>
-                        Business
-                      </TableHead>
+                      <TableHead>Business</TableHead>
 
-                      <TableHead>
-                        Plan
-                      </TableHead>
+                      <TableHead>Plan</TableHead>
 
-                      <TableHead>
-                        Status
-                      </TableHead>
+                      <TableHead>Status</TableHead>
 
-                      <TableHead>
-                        Locations
-                      </TableHead>
+                      <TableHead>Locations</TableHead>
 
-                      <TableHead>
-                        Expires
-                      </TableHead>
+                      <TableHead>Expires</TableHead>
 
                       <TableHead className="w-[100px] pr-5 text-right">
                         Action
@@ -599,9 +516,7 @@ export default function AdminSubscriptionsPage() {
                       <SubscriptionRow
                         key={record.business.id}
                         record={record}
-                        onManage={() =>
-                          openManage(record)
-                        }
+                        onManage={() => openManage(record)}
                       />
                     ))}
                   </TableBody>
@@ -612,24 +527,24 @@ export default function AdminSubscriptionsPage() {
 
           {/* Panel footer */}
 
-          {!isLoading &&
-            !isError &&
-            filteredRecords.length > 0 && (
-              <div className="border-t border-border/60 bg-muted/10 px-4 py-3 sm:px-6">
-                <p className="text-xs text-muted-foreground">
-                  Showing {filteredRecords.length}{" "}
-                  {filteredRecords.length === 1
-                    ? "workspace"
-                    : "workspaces"}
-                </p>
-              </div>
-            )}
+          {!isLoading && !isError && filteredRecords.length > 0 && (
+            <div className="border-t border-border/60 bg-muted/10 px-4 py-3 sm:px-6">
+              <p className="text-xs text-muted-foreground">
+                Showing {filteredRecords.length}{" "}
+                {filteredRecords.length === 1 ? "workspace" : "workspaces"}
+              </p>
+            </div>
+          )}
         </section>
       </div>
 
       {/* =================================================
        * MANAGE SUBSCRIPTION DIALOG
        * ================================================= */}
+
+      {!isLoading && !isError && (
+        <RenewalDesk records={records} onManage={openManage} />
+      )}
 
       {selectedBusiness && (
         <BusinessSubscriptionDialog
@@ -658,12 +573,10 @@ function SubscriptionRow({
   record: AdminSubscriptionRecord;
   onManage: () => void;
 }) {
-  const effectiveStatus =
-    getEffectiveStatus(record);
+  const effectiveStatus = getEffectiveStatus(record);
 
   return (
     <TableRow className="hover:bg-muted/30">
-
       {/* Customer */}
 
       <TableCell className="pl-5">
@@ -684,9 +597,7 @@ function SubscriptionRow({
           </p>
 
           <div className="mt-2">
-            <CustomerStatusBadge
-              status={record.customer.status}
-            />
+            <CustomerStatusBadge status={record.customer.status} />
           </div>
         </div>
       </TableCell>
@@ -717,9 +628,7 @@ function SubscriptionRow({
             {record.subscription.plan}
           </span>
         ) : (
-          <span className="text-muted-foreground">
-            —
-          </span>
+          <span className="text-muted-foreground">—</span>
         )}
       </TableCell>
 
@@ -742,20 +651,13 @@ function SubscriptionRow({
       {/* Expiry */}
 
       <TableCell className="text-sm text-muted-foreground">
-        {formatExpiry(
-          record.subscription?.expiresAt
-        )}
+        {formatExpiry(record.subscription?.expiresAt)}
       </TableCell>
 
       {/* Action */}
 
       <TableCell className="pr-5 text-right">
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={onManage}
-        >
+        <Button type="button" size="sm" variant="outline" onClick={onManage}>
           Manage
         </Button>
       </TableCell>
@@ -774,12 +676,10 @@ function SubscriptionMobileCard({
   record: AdminSubscriptionRecord;
   onManage: () => void;
 }) {
-  const effectiveStatus =
-    getEffectiveStatus(record);
+  const effectiveStatus = getEffectiveStatus(record);
 
   return (
     <article className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-border/70 bg-background">
-
       {/* Card header */}
 
       <div className="flex min-w-0 items-start gap-3 p-4">
@@ -797,34 +697,26 @@ function SubscriptionMobileCard({
           </h3>
 
           <p className="mt-1 text-xs text-muted-foreground">
-            {record.subscription?.plan ??
-              "No plan assigned"}
+            {record.subscription?.plan ?? "No plan assigned"}
           </p>
         </div>
 
-        <EffectiveStatusBadge
-          status={effectiveStatus}
-        />
+        <EffectiveStatusBadge status={effectiveStatus} />
       </div>
 
       {/* Card content */}
 
       <div className="min-w-0 flex-1 space-y-4 px-4 pb-4">
-
         {/* Customer */}
 
         <div className="min-w-0">
-          <p className="text-xs text-muted-foreground">
-            Customer
-          </p>
+          <p className="text-xs text-muted-foreground">Customer</p>
 
           <Link
             href={`/admin/customers/${record.customer.id}`}
             className="mt-1 inline-flex max-w-full items-center gap-1 text-sm font-medium transition hover:text-emerald-600 dark:hover:text-emerald-400"
           >
-            <span className="truncate">
-              {record.customer.name}
-            </span>
+            <span className="truncate">{record.customer.name}</span>
 
             <ArrowUpRight className="size-3.5 shrink-0" />
           </Link>
@@ -834,9 +726,7 @@ function SubscriptionMobileCard({
           </p>
 
           <div className="mt-2">
-            <CustomerStatusBadge
-              status={record.customer.status}
-            />
+            <CustomerStatusBadge status={record.customer.status} />
           </div>
         </div>
 
@@ -844,9 +734,7 @@ function SubscriptionMobileCard({
 
         <div className="grid grid-cols-2 gap-3 border-t border-border/60 pt-4">
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">
-              Locations
-            </p>
+            <p className="text-xs text-muted-foreground">Locations</p>
 
             <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold">
               <MapPin className="size-3.5 text-muted-foreground" />
@@ -856,14 +744,10 @@ function SubscriptionMobileCard({
           </div>
 
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">
-              Expires
-            </p>
+            <p className="text-xs text-muted-foreground">Expires</p>
 
             <p className="mt-1 text-sm font-semibold">
-              {formatExpiry(
-                record.subscription?.expiresAt
-              )}
+              {formatExpiry(record.subscription?.expiresAt)}
             </p>
           </div>
         </div>
@@ -879,7 +763,6 @@ function SubscriptionMobileCard({
           onClick={onManage}
         >
           <Crown className="size-4" />
-
           Manage subscription
         </Button>
       </div>
@@ -914,11 +797,7 @@ function BusinessAvatar({
   );
 }
 
-function EffectiveStatusBadge({
-  status,
-}: {
-  status: EffectiveStatus;
-}) {
+function EffectiveStatusBadge({ status }: { status: EffectiveStatus }) {
   if (status === "NO_SUBSCRIPTION") {
     return (
       <span className="inline-flex shrink-0 items-center rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
@@ -927,31 +806,19 @@ function EffectiveStatusBadge({
     );
   }
 
-  return (
-    <SubscriptionStatusBadge
-      status={status}
-    />
-  );
+  return <SubscriptionStatusBadge status={status} />;
 }
 
-function formatExpiry(
-  expiresAt: string | null | undefined
-) {
+function formatExpiry(expiresAt: string | null | undefined) {
   if (!expiresAt) {
     return "—";
   }
 
-  return format(
-    parseISO(expiresAt),
-    "MMM d, yyyy"
-  );
+  return format(parseISO(expiresAt), "MMM d, yyyy");
 }
 
-function getEffectiveStatus(
-  record: AdminSubscriptionRecord
-): EffectiveStatus {
-  const subscription =
-    record.subscription;
+function getEffectiveStatus(record: AdminSubscriptionRecord): EffectiveStatus {
+  const subscription = record.subscription;
 
   if (!subscription) {
     return "NO_SUBSCRIPTION";
@@ -959,13 +826,9 @@ function getEffectiveStatus(
 
   if (
     subscription.expiresAt &&
-    (
-      subscription.status === "ACTIVE" ||
-      subscription.status === "TRIAL"
-    )
+    (subscription.status === "ACTIVE" || subscription.status === "TRIAL")
   ) {
-    const expiresAt =
-      new Date(subscription.expiresAt);
+    const expiresAt = new Date(subscription.expiresAt);
 
     if (expiresAt < new Date()) {
       return "EXPIRED";
@@ -1013,7 +876,6 @@ function EmptySubscriptions({
             onClick={onClear}
           >
             <X className="size-4" />
-
             Clear filters
           </Button>
         )}
@@ -1033,10 +895,7 @@ function SubscriptionsSkeleton() {
         {Array.from({
           length: 4,
         }).map((_, index) => (
-          <Skeleton
-            key={index}
-            className="h-64 rounded-xl"
-          />
+          <Skeleton key={index} className="h-64 rounded-xl" />
         ))}
       </div>
 
@@ -1044,10 +903,7 @@ function SubscriptionsSkeleton() {
         {Array.from({
           length: 7,
         }).map((_, index) => (
-          <Skeleton
-            key={index}
-            className="h-16 w-full rounded-lg"
-          />
+          <Skeleton key={index} className="h-16 w-full rounded-lg" />
         ))}
       </div>
     </>

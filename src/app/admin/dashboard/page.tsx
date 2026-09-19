@@ -276,7 +276,7 @@ export default function AdminDashboardPage() {
                   .count
               }
               description="Subscriptions expiring within 7 days"
-              href="/admin/subscriptions"
+             href="/admin/subscriptions?renewals=7"
             />
 
             <AttentionRow
