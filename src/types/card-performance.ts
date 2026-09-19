@@ -60,6 +60,9 @@ export type CardPerformanceData = {
     from:
     string;
 
+    previousFrom: string;
+    previousTo: string;
+
     to:
     string;
 
